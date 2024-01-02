@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="DemoApplication" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="com.example.demo.DemoApplication" />
-    <module name="demo" />
+    <module name="ServerIoT" />
     <method v="2">
       <option name="Make" enabled="true" />
       <option name="LaunchBrowser.Before.Run" url="http://localhost:8080/swagger-ui/index.html" />
