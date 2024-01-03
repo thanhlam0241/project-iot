@@ -15,6 +15,8 @@ export default function AppConversionRates({ title, subheader, chart, ...other }
 
   const chartSeries = series.map((i) => i.value);
 
+  console.log(chartSeries)
+
   const chartOptions = useChart({
     colors,
     tooltip: {
@@ -38,6 +40,8 @@ export default function AppConversionRates({ title, subheader, chart, ...other }
     },
     ...options,
   });
+
+  console.log(chartOptions)
 
   return (
     <Card {...other}>

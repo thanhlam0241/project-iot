@@ -25,6 +25,13 @@ public interface AttendanceLogRepository extends BaseRepository<AttendanceLog,St
 
     List<AttendanceLog> findAllByUserIdAndTimeBetween(String id, LocalDateTime isoDayStart, LocalDateTime isoDayEnd);
 
+    @Query(value = "{ year: ?0, month: ?1, isLate: true }", count = true)
+    int countByYearAndMonthAndLate(int year, int month);
+
+    @Query(value = "{ year: ?0, month: ?1, isOnTime: true }", count = true)
+    int countByYearAndMonthAndOnTime(int year, int month);
+
+
     // For admin to find all by year, quarter, month and day of month
     List<AttendanceLog> findAllByYear(int year);
     List<AttendanceLog> findAllByYearAndMonth(int year, int month);
