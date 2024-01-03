@@ -14,6 +14,8 @@ public interface UserRepository extends BaseRepository<User,String> {
 
     List<User> findAllByRole(String role);
 
+    int countByRole(String role);
+
     boolean existsByUsername(String username);
 
     boolean existsById(String id);

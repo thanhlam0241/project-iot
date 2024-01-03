@@ -4,6 +4,7 @@ spring:
     static-path-pattern: /static/**
   data:
     mongodb:
+#      uri: mongodb+srv://thanhlam0241:thanhlam0241@iot.npxkz7m.mongodb.net/?retryWrites=true&w=majority
       host: localhost
       port: 27017
       database: iot
@@ -23,11 +24,20 @@ spring-doc:
     operationsSorter: method
 
 rabbitmq:
-  host: localhost
+#  uri: amqps://ubhptxwu:eh0iTQ0D22adEkSc9kyb2gB8hTZ_yVOt@armadillo.rmq.cloudamqp.com/ubhptxwu
+  host: amqps://ubhptxwu:eh0iTQ0D22adEkSc9kyb2gB8hTZ_yVOt@armadillo.rmq.cloudamqp.com/ubhptxwu
   port: 5672
-  username: guest
-  password: guest
+  username: ubhptxwu
+  password: eh0iTQ0D22adEkSc9kyb2gB8hTZ_yVOt
   queue: iot-queue
   exchange: iot-exchange
   routing-key: iot-routing-key
 
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate=DEBUG:

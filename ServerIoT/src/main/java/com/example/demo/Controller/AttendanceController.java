@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.DTO.AttendanceLog.AttendanceLogDto;
 import com.example.demo.Entites.AttendanceLog;
 import com.example.demo.Entites.Statistic;
 import com.example.demo.Services.AttendanceService;
@@ -19,8 +20,8 @@ public class AttendanceController {
 
     private final AttendanceService attendanceService;
 
-    @GetMapping("{id}")
-    public ResponseEntity<List<AttendanceLog>> getAllAttendanceLogsByUserId(
+    @GetMapping("log/{id}")
+    public ResponseEntity<List<AttendanceLogDto>> getAllAttendanceLogsByUserId(
             @PathVariable String id,
             @RequestParam(required = false) String year,
             @RequestParam(required = false) String month,
@@ -55,8 +56,30 @@ public class AttendanceController {
             listAttendance = attendanceService.getAttendanceLogsByUserId(id);
         }
 
-        return ResponseEntity.ok(listAttendance);
+        return ResponseEntity.ok(attendanceService.MapToListDto(listAttendance));
     }
+
+    @GetMapping("log/{id}/between")
+    public ResponseEntity<List<AttendanceLogDto>>  getLogsBetweenDays(
+            @PathVariable String id,
+            @RequestParam(required = true) String start,
+            @RequestParam(required = true) String end
+    ) {
+        var results = attendanceService.getAttendanceLogsByUserIdDatesBetween(id, start, end);
+        return ResponseEntity.ok(attendanceService.MapToListDto(results));
+    }
+
+    @GetMapping("/statistic/{id}/between")
+    public ResponseEntity<Statistic> getStatisticByUserIdBetweenDates(
+            @PathVariable String id,
+            @RequestParam(required = true) String start,
+            @RequestParam(required = true) String end
+    ) {
+        logger.info("Getting attendance logs by userId.");
+        Statistic statistic = attendanceService.getStatisticByUserIdBetweenTwoDates(id,start,end);
+        return ResponseEntity.ok(statistic);
+    }
+
 
     @GetMapping("/statistic/{id}")
     public ResponseEntity<Statistic> getStatisticByUserId(

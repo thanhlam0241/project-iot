@@ -20,7 +20,7 @@ import org.springframework.web.util.HtmlUtils;
 public class WebSocketController {
 
     @Autowired
-    SimpMessagingTemplate template;
+    private SimpMessagingTemplate template;
 
     @PostMapping("api/v1/send")
     public ResponseEntity<Void> sendMessage(@RequestBody MessageSocket message) {
