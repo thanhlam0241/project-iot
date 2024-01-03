@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto {
+    private String id;
     private String username;
     private String fullName;
     private Role role;
     private boolean active;
-    private ManagementUnit managementUnit;
 }

@@ -12,7 +12,7 @@ public class DateUtil {
         }
         String monthFormat = month < 10 ? String.format("0{}",month) : String.valueOf(month);
         String dayFormat = day < 10 ? String.format("0{}",day) : String.valueOf(day);
-        return String.format("{}-{}-{}",year,monthFormat,dayFormat);
+        return String.format("%d-%s-%s",year,monthFormat,dayFormat);
     }
 
     public static LocalDate  stringToDate(String date){
