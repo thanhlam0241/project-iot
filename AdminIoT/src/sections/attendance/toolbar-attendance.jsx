@@ -62,6 +62,7 @@ export default function TableToolbar({
                     value={defaultValueYear}
                     onChange={onChangeYear}
                     options={[
+                        { id: 4, name: '2024', value: '2024' },
                         { id: 3, name: '2023', value: '2023' },
                         { id: 2, name: '2022', value: '2022' },
                         { id: 1, name: '2021', value: '2021' },
