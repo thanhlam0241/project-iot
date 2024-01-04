@@ -10,6 +10,18 @@ spring:
       database: iot
       #username: admin
       #password: password
+  servlet:
+    multipart:
+      # Enable multipart uploads
+#      enabled=true
+      # Threshold after which files are written to disk.
+#      multipart.file-size-threshold=2KB
+      # Max file size.
+#      max-file-size=200MB
+      # Max Request Size
+#      max-request-size=215MB
+      ## File Storage Properties
+      # All files uploaded through the REST API will be stored in this directory
 
 application:
   security:
@@ -29,9 +41,18 @@ rabbitmq:
   port: 5672
   username: ubhptxwu
   password: eh0iTQ0D22adEkSc9kyb2gB8hTZ_yVOt
-  queue: iot-queue
-  exchange: iot-exchange
-  routing-key: iot-routing-key
+  queue:
+    queue-face: "queue.resultFace"
+    queue-machine: "queue.machineLog"
+    queue-detect: "queue.dataFace"
+  exchange:
+    direct: "direct-exchange"
+    fanout: "fanout-exchange"
+    header: "header-exchange"
+  routing-key:
+    key-result: queue-result
+    key-machine: queue-machine
+    key-detect: queue-detect
 
 logging:
   level:
@@ -40,4 +61,7 @@ logging:
         data:
           mongodb:
             core:
-              MongoTemplate=DEBUG:
+              MongoTemplate: DEBUG
+
+file:
+  upload-dir: /uploads

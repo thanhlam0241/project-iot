@@ -11,10 +11,10 @@ public class RabbitMQSender {
     @Autowired
     private AmqpTemplate rabbitTemplate;
 
-    @Value("${rabbitmq.exchange}")
+    @Value("${rabbitmq.exchange.direct}")
     private String exchange;
 
-    @Value("${rabbitmq.routing-key}")
+    @Value("${rabbitmq.routing-key.key-detect}")
     private String routingKey;
 
     public void send(AttendanceLog log) {
