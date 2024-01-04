@@ -150,7 +150,7 @@ export default function AppView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="Số máy chấm công"
+            title="Máy chấm công"
             total={humanStatistic.numberOfMachine || 0}
             color="warning"
             icon={<img alt="icon" src="/assets/icons/glass/machine.png" />}

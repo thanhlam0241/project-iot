@@ -97,8 +97,8 @@ public class UserService {
             var managementUnit = managementUnitRepository.findById(userDto.getManagementUnitId())
                     .orElseThrow(() -> new NotFoundException("Management unit not found"));
             user.setManagementUnit(managementUnit);
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return true;
     }
