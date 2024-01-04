@@ -60,7 +60,7 @@ export default function StickyHeadTable() {
                         item.user.code,
                         item.user.fullName,
                         item.attendanceMachine.name,
-                        item.attendanceMachine.name,
+                        item.managementUnit.name,
                         `${item.dayOfMonth}/${item.month}/${item.year}`,
                         `${item.hour}:${item.minute}`
                     )
