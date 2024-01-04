@@ -1,8 +1,6 @@
 package com.example.demo.Configurations.RabbitMQ;
 
-import com.example.demo.Entites.AttendanceLog;
 import com.example.demo.Services.AttendanceLogService;
-import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
@@ -20,14 +18,26 @@ import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 
 @Configuration
 public class RabbitMQConfig {
-    @Value("${rabbitmq.queue}")
-    String queueName;
+    @Value("${rabbitmq.queue.queue-machine}")
+    String nameQueueReceiveLogFromMachine;
 
-    @Value("${rabbitmq.exchange}")
+    @Value("${rabbitmq.queue.queue-detect}")
+    String nameQueueSendDataToFaceDetect;
+
+    @Value("${rabbitmq.queue.queue-face}")
+    String nameQueueResultDetect;
+
+    @Value("${rabbitmq.exchange.direct}")
     String exchange;
 
-    @Value("${rabbitmq.routing-key}")
-    private String routingKey;
+    @Value("${rabbitmq.routing-key.key-machine}")
+    private String routingKeyMachine;
+
+    @Value("${rabbitmq.routing-key.key-detect}")
+    private String routingKeyDetect;
+
+    @Value("${rabbitmq.routing-key.key-result}")
+    private String routingKeyFace;
 
     @Value("${rabbitmq.username}")
     String username;
@@ -42,14 +52,24 @@ public class RabbitMQConfig {
     private AttendanceLogService attendanceLogService;
 
     @Autowired
-    private RabbitMQListener rabbitMQListener;
+    private RabbitMQListenerResultFromFaceDetect rabbitMQListener;
 
     @Autowired
     private ModelMapper modelMapper;
 
     @Bean
-    Queue queue() {
-        return new Queue(queueName, false);
+    Queue queueResult() {
+        return new Queue(nameQueueResultDetect, false);
+    }
+
+    @Bean
+    Queue queueMachine(){
+        return new Queue(nameQueueReceiveLogFromMachine, false);
+    }
+
+    @Bean
+    Queue queueFaceDetect(){
+        return new Queue(nameQueueSendDataToFaceDetect, false);
     }
 
     @Bean
@@ -58,14 +78,22 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    Binding binding(Queue queue, DirectExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(routingKey);
+    Binding machineBinding(Queue queueMachine, DirectExchange exchange) {
+        return BindingBuilder.bind(queueMachine).to(exchange).with(routingKeyMachine);
+    }
+    @Bean
+    Binding faceBinding(Queue queueResult, DirectExchange exchange) {
+        return BindingBuilder.bind(queueResult).to(exchange).with(routingKeyFace);
+    }
+    @Bean
+    Binding detectBinding(Queue queueFaceDetect, DirectExchange exchange) {
+        return BindingBuilder.bind(queueFaceDetect).to(exchange).with(routingKeyDetect);
     }
 
-    @Bean
-    public MessageConverter jsonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
-    }
+//    @Bean
+//    public MessageConverter jsonMessageConverter() {
+//        return new Jackson2JsonMessageConverter();
+//    }
 
 
 //    @Bean
@@ -90,7 +118,7 @@ public class RabbitMQConfig {
     MessageListenerContainer messageListenerContainer(ConnectionFactory connectionFactory ) {
         SimpleMessageListenerContainer simpleMessageListenerContainer = new SimpleMessageListenerContainer();
         simpleMessageListenerContainer.setConnectionFactory(connectionFactory);
-        simpleMessageListenerContainer.setQueues(queue());
+        simpleMessageListenerContainer.setQueues(queueResult());
         simpleMessageListenerContainer.setMessageListener(rabbitMQListener);
         return simpleMessageListenerContainer;
     }
