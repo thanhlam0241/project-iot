@@ -41,9 +41,18 @@ rabbitmq:
   port: 5672
   username: ubhptxwu
   password: eh0iTQ0D22adEkSc9kyb2gB8hTZ_yVOt
-  queue: iot-queue
-  exchange: iot-exchange
-  routing-key: iot-routing-key
+  queue:
+    queue-face: "queue.resultFace"
+    queue-machine: "queue.machineLog"
+    queue-detect: "queue.dataFace"
+  exchange:
+    direct: "direct-exchange"
+    fanout: "fanout-exchange"
+    header: "header-exchange"
+  routing-key:
+    key-result: queue-result
+    key-machine: queue-machine
+    key-detect: queue-detect
 
 logging:
   level:
@@ -52,7 +61,7 @@ logging:
         data:
           mongodb:
             core:
-              MongoTemplate=DEBUG:
+              MongoTemplate: DEBUG
 
 file:
-  upload-dir=/uploads
+  upload-dir: /uploads
