@@ -23,6 +23,8 @@ import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
 import { Backdrop } from 'src/components/backdrop';
 
+
+
 // ----------------------------------------------------------------------
 
 export default function LoginView() {
@@ -64,11 +66,13 @@ export default function LoginView() {
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      login()
-      setLoading(false);
+    login(username, password).then((res) => {
       router.push('/');
-    }, 2000);
+    }).catch((err) => {
+      setErrorText(err.message);
+    }).finally(() => {
+      setLoading(false);
+    });
   };
 
   const onChangeUsername = (e) => {

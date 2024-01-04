@@ -15,6 +15,8 @@ import AccountPopover from './common/account-popover';
 // import LanguagePopover from './common/language-popover';
 import NotificationsPopover from './common/notifications-popover';
 
+import {logout} from 
+
 // ----------------------------------------------------------------------
 
 export default function Header({ onOpenNav }) {

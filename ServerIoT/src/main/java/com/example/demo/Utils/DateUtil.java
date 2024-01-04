@@ -10,8 +10,8 @@ public class DateUtil {
         if(month <= 0 || month >= 13){
             throw new DataFormatException("Month must be between 1 and 12");
         }
-        String monthFormat = month < 10 ? String.format("0{}",month) : String.valueOf(month);
-        String dayFormat = day < 10 ? String.format("0{}",day) : String.valueOf(day);
+        String monthFormat = month < 10 ? String.format("0%s",month) : String.valueOf(month);
+        String dayFormat = day < 10 ? String.format("0%s",day) : String.valueOf(day);
         return String.format("%d-%s-%s",year,monthFormat,dayFormat);
     }
 
