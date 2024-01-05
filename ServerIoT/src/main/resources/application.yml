@@ -4,8 +4,8 @@ spring:
     static-path-pattern: /static/**
   data:
     mongodb:
-#      uri: mongodb+srv://thanhlam0241:thanhlam0241@iot.npxkz7m.mongodb.net/?retryWrites=true&w=majority
-      host: localhost
+      uri: mongodb+srv://thanhlam0241:thanhlam0241@iot.npxkz7m.mongodb.net/?retryWrites=true&w=majority
+      # host: localhost
       port: 27017
       database: iot
       #username: admin
