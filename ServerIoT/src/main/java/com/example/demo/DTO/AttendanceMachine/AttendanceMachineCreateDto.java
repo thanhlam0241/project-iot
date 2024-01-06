@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.index.Indexed;
 @AllArgsConstructor
 @Data
 public class AttendanceMachineCreateDto {
-    @NonNull
     private String managementUnitId;
     @Indexed(unique = true)
     private String code;

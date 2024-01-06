@@ -18,10 +18,10 @@ import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 @Configuration
 public class RabbitMQConfig {
     @Value("${rabbitmq.queue}")
-    String queueName;
+    String faceIdReceiverQueueName;
 
     @Value("${rabbitmq.exchange}")
-    String exchange;
+    String faceIdExchangeName;
 
     @Value("${rabbitmq.routing-key}")
     private String routingKey;
@@ -40,12 +40,12 @@ public class RabbitMQConfig {
 
     @Bean
     Queue queue() {
-        return new Queue(queueName, false);
+        return new Queue(faceIdReceiverQueueName, false);
     }
 
     @Bean
     DirectExchange exchange() {
-        return new DirectExchange(exchange);
+        return new DirectExchange(faceIdExchangeName);
     }
 
     @Bean

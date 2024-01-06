@@ -10,8 +10,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class AttendanceLogRawDto {
-    private String time;
-    private String featureVector;
+    private String password;
     private String attendanceMachineId;
     private String userId;
 }

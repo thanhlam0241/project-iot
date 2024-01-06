@@ -1,7 +1,8 @@
 package com.example.demo.Services;
 
 import com.example.demo.DTO.AttendanceMachine.AttendanceMachineCreateDto;
-import com.example.demo.DTO.AttendanceMachine.AttendanceUpdateDto;
+import com.example.demo.DTO.AttendanceMachine.AttendanceMachineInsertOrReplaceDto;
+import com.example.demo.DTO.AttendanceMachine.AttendanceMachineUpdateDto;
 import com.example.demo.Entites.AttendanceMachine;
 import com.example.demo.Exception.Model.NotFoundException;
 import com.example.demo.Repository.AttendanceMachineRepository;
@@ -32,7 +33,7 @@ public class AttendanceMachineService {
         attendanceMachineRepository.deleteById(id);
     }
 
-    public void updateAttendanceMachine(String id, AttendanceUpdateDto attendanceMachineUpdateDto) {
+    public void updateAttendanceMachine(String id, AttendanceMachineUpdateDto attendanceMachineUpdateDto) {
         var attendanceMachine = attendanceMachineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Attendance Machine not found"));
         attendanceMachine.setCode(attendanceMachineUpdateDto.getCode());
@@ -52,5 +53,17 @@ public class AttendanceMachineService {
 
     public List<AttendanceMachine> getAllAttendanceMachines() {
         return attendanceMachineRepository.findAll();
+    }
+
+    public AttendanceMachine insertOrUpdateAttendanceMachine(AttendanceMachineInsertOrReplaceDto dto) {
+        var device = attendanceMachineRepository.findByCode(dto.getCode());
+        if(device == null){
+            var machine = new AttendanceMachine();
+            machine.setCode(dto.getCode());
+            machine.setName(dto.getCode());
+            return attendanceMachineRepository.save(machine);
+        }
+
+        return device;
     }
 }

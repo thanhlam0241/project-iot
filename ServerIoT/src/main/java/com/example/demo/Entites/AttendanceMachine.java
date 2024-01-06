@@ -1,5 +1,6 @@
 package com.example.demo.Entites;
 
+import jakarta.validation.constraints.Null;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +15,7 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 @AllArgsConstructor
 public class AttendanceMachine extends BaseEntity {
     @DocumentReference
+    @Null
     private ManagementUnit managementUnit;
 
     private String code;

@@ -41,8 +41,8 @@ public class RabbitMQListener implements MessageListener {
             String attendanceMachineId = jsonObject.getString("attendanceMachineId");
             String featureVector = jsonObject.getString("featureVector");
 
-            AttendanceLogCreateDto dto = new AttendanceLogCreateDto(time, featureVector, attendanceMachineId, userId);
-            attendanceLogService.insertAttendanceLog(dto);
+//            AttendanceLogCreateDto dto = new AttendanceLogCreateDto(time, featureVector, attendanceMachineId, userId);
+//            attendanceLogService.insertAttendanceLog(dto);
         } catch (Exception e) {
             System.out.println("Error Consuming Message - " + e.getMessage());
         }

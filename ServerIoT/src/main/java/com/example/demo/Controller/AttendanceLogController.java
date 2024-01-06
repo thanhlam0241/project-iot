@@ -21,25 +21,11 @@ import java.time.format.DateTimeFormatter;
 @RequestMapping("/api/v1/attendance-log")
 @RequiredArgsConstructor
 public class AttendanceLogController {
-    private final Logger logger = LoggerFactory.getLogger(AttendanceLogController.class);
-
     private final AttendanceLogService attendanceLogService;
 
-    @Autowired
-    RabbitMQSender rabbitMQSender;
-
     @PostMapping()
-    public ResponseEntity<String> insertLog(@RequestBody AttendanceLogRawDto body) {
-        logger.info("Received request to insert attendance log");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS Z");
-        String stringTime = body.getTime();
-        LocalDateTime time = LocalDateTime.parse(stringTime, formatter);
-        AttendanceLogCreateDto dto = new AttendanceLogCreateDto();
-        dto.setTime(time);
-        dto.setFeatureVector(body.getFeatureVector());
-        dto.setAttendanceMachineId(body.getAttendanceMachineId());
-        dto.setUserId(body.getUserId());
-        attendanceLogService.insertAttendanceLog(dto);
+    public ResponseEntity<String> insertLog(@RequestBody AttendanceLogCreateDto body) {
+        attendanceLogService.insertAttendanceLog(body);
         return ResponseEntity.ok("Insert attendance log successfully");
     }
 }
