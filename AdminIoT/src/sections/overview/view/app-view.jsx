@@ -1,4 +1,5 @@
-// import { faker } from '@faker-js/faker';
+/* eslint-disable */
+import { useState, useEffect, useMemo } from 'react';
 
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
@@ -13,12 +14,116 @@ import AppCurrentVisits from '../app-current-visits';
 import AppWebsiteVisits from '../app-website-visits';
 import AppWidgetSummary from '../app-widget-summary';
 // import AppTrafficBySite from '../app-traffic-by-site';
-import AppCurrentSubject from '../app-current-subject';
-import AppConversionRates from '../app-conversion-rates';
+// import AppCurrentSubject from '../app-current-subject';
+// import AppConversionRates from '../app-conversion-rates';
+
+import adminApi from 'src/api/adminApi';
 
 // ----------------------------------------------------------------------
 
 export default function AppView() {
+
+  const [humanStatistic, setHumanStatistic] = useState({
+    numberOfAccount: 0,
+    numberOfAdminAccount: 0,
+    numberOfDepartment: 0,
+    numberOfEmployeeAccount: 0,
+    numberOfMachine: 0,
+    numberOfManagerAccount: 0
+  });
+  const [attendanceStatistic, setAttendanceStatistic] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [year, setYear] = useState(2023 || new Date().getFullYear());
+
+  const listOnTime = useMemo(() => {
+    const list = attendanceStatistic.statisticInMonths || [];
+    if (list.length === 0) {
+      return Array(12).fill(0);
+    }
+    return list.map(item => item.numberOfOnTime || 0)
+  }, [attendanceStatistic])
+
+  const listLate = useMemo(() => {
+    const list = attendanceStatistic.statisticInMonths || [];
+    if (list.length === 0) {
+      return Array(12).fill(0);
+    }
+    return list.map(item => item.numberOfLate || 0)
+  }, [attendanceStatistic])
+
+  const listAll = useMemo(() => {
+    const list = attendanceStatistic.statisticInMonths || [];
+    if (list.length === 0) {
+      return Array(12).fill(0);
+    }
+    return list.map(item => item.numberOfAttendance || 0)
+  }, [attendanceStatistic])
+
+  const listMonth = useMemo(() => {
+    const l = []
+    for (let i = 0; i < 12; i++) {
+      let monthFormat = i <= 9 ? `0${i + 1}` : `${i + 1}`
+      l.push(`01/${monthFormat}/${year}`)
+    }
+    return l
+  }, [year])
+
+  // const listRateLate = useMemo(() => {
+  //   const list = attendanceStatistic.statisticInMonths || [];
+  //   console.log(list)
+  //   if (list.length === 0) {
+  //     return Array(12).map(() => ({
+  //       label: `Tháng ${i + 1}`,
+  //       value: 1
+  //     }));
+  //   }
+  //   const result = list.map(item => ({
+  //     label: `Tháng ${item.month}`,
+  //     value: Math.ceil(item.percentOfLate) || 100
+  //   }))
+  //   console.log(result)
+  //   return result
+  // }, [attendanceStatistic])
+
+  const getHumanStatistic = async () => {
+    try {
+      setIsLoading(true);
+      const response = await adminApi.getHumanStatistic();
+      if (response.data) {
+        console.log(response.data);
+        setHumanStatistic(response.data);
+      }
+    }
+    catch (error) {
+      console.log(error);
+    }
+    finally {
+      setIsLoading(false);
+    }
+  }
+
+  const getAttendanceStatistic = async () => {
+    try {
+      setIsLoading(true);
+      const response = await adminApi.getAttendanceStatistic(year);
+      if (response.data) {
+        console.log(response.data);
+        setAttendanceStatistic(response.data);
+      }
+    }
+    catch (error) {
+      console.log(error);
+    }
+    finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getHumanStatistic();
+    getAttendanceStatistic();
+  }, []);
+
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" sx={{ mb: 5 }}>
@@ -29,7 +134,7 @@ export default function AppView() {
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
             title="Nhân viên"
-            total={100}
+            total={humanStatistic.numberOfEmployeeAccount || 0}
             color="info"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
           />
@@ -37,7 +142,7 @@ export default function AppView() {
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
             title="Đơn vị/Phòng ban"
-            total={10}
+            total={humanStatistic.numberOfDepartment || 0}
             color="success"
             icon={<img alt="icon" src="/assets/icons/glass/department.png" />}
           />
@@ -45,8 +150,8 @@ export default function AppView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="Số máy chấm công"
-            total={20}
+            title="Máy chấm công"
+            total={humanStatistic.numberOfMachine || 0}
             color="warning"
             icon={<img alt="icon" src="/assets/icons/glass/machine.png" />}
           />
@@ -55,7 +160,7 @@ export default function AppView() {
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
             title="Tài khoản"
-            total={130}
+            total={humanStatistic.numberOfAccount || 0}
             color="error"
             icon={<img alt="icon" src="/assets/icons/glass/account.png" />}
           />
@@ -64,40 +169,28 @@ export default function AppView() {
         <Grid xs={12} md={6} lg={8}>
           <AppWebsiteVisits
             title="Thống kê chấm công"
-            subheader="Năm 2023"
+            subheader={`Năm ${year}`}
             chart={{
-              labels: [
-                '01/01/2023',
-                '02/01/2023',
-                '03/01/2023',
-                '04/01/2023',
-                '05/01/2023',
-                '06/01/2023',
-                '07/01/2023',
-                '08/01/2023',
-                '09/01/2023',
-                '10/01/2023',
-                '11/01/2023',
-              ],
+              labels: listMonth,
               series: [
                 {
                   name: 'Số ca làm việc',
                   type: 'column',
                   fill: 'solid',
-                  data: [342, 342, 342, 343, 345, 332, 352, 328, 333, 303, 342],
+                  data: listAll,
                 },
                 {
                   name: 'Số ca đi muộn',
                   type: 'area',
                   fill: 'gradient',
-                  data: [25, 43, 24, 62, 32, 56, 24, 62, 24, 62, 71],
+                  data: listLate,
                 },
-                // {
-                //   name: 'Team C',
-                //   type: 'line',
-                //   fill: 'solid',
-                //   data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
-                // },
+                {
+                  name: 'Số ca đúng giờ',
+                  type: 'line',
+                  fill: 'solid',
+                  data: listOnTime,
+                },
               ],
             }}
           />
@@ -108,36 +201,24 @@ export default function AppView() {
             title="Thống kê người dùng"
             chart={{
               series: [
-                { label: 'Admin', value: 10 },
-                { label: 'Manager', value: 20 },
-                { label: 'Employee', value: 100 }
+                { label: 'Admin', value: humanStatistic.numberOfAdminAccount || 0 },
+                { label: 'Manager', value: humanStatistic.numberOfManagerAccount || 0 },
+                { label: 'Employee', value: humanStatistic.numberOfEmployeeAccount || 0 }
               ],
             }}
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={8}>
+        {/* <Grid xs={12} md={6} lg={8}>
           <AppConversionRates
-            title="Conversion Rates"
-            subheader="(+43%) than last year"
+            title="Tỷ lệ đi muộn"
             chart={{
-              series: [
-                { label: 'Italy', value: 400 },
-                { label: 'Japan', value: 430 },
-                { label: 'China', value: 448 },
-                { label: 'Canada', value: 470 },
-                { label: 'France', value: 540 },
-                { label: 'Germany', value: 580 },
-                { label: 'South Korea', value: 690 },
-                { label: 'Netherlands', value: 1100 },
-                { label: 'United States', value: 1200 },
-                { label: 'United Kingdom', value: 1380 },
-              ],
+              series: listRateLate,
             }}
           />
-        </Grid>
+        </Grid> */}
 
-        <Grid xs={12} md={6} lg={4}>
+        {/* <Grid xs={12} md={6} lg={4}>
           <AppCurrentSubject
             title="Current Subject"
             chart={{
@@ -149,7 +230,7 @@ export default function AppView() {
               ],
             }}
           />
-        </Grid>
+        </Grid> */}
 
         {/* <Grid xs={12} md={6} lg={8}>
           <AppNewsUpdate

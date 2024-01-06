@@ -1,5 +1,6 @@
 package com.example.demo.Services;
 
+import com.example.demo.DTO.User.UserDto;
 import com.example.demo.Entites.User;
 import com.example.demo.Enums.Role;
 import com.example.demo.Exception.Model.AppException;
@@ -11,6 +12,7 @@ import com.example.demo.Repository.UserRepository;
 import com.example.demo.Configurations.Security.JwtService;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,6 +29,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final ModelMapper modelMapper;
     public AuthenticationResponse register(RegisterRequest request) {
         var userExists = userAccountRepository.findByUsername(request.getUsername()).isPresent();
         if(userExists) {
@@ -60,6 +63,7 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
+                .user(modelMapper.map(user, UserDto.class))
                 .build();
     }
 

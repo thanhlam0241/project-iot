@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.DTO.AttendanceLog.AttendanceLogDto;
 import com.example.demo.Entites.AttendanceLog;
 import com.example.demo.Entites.Statistic;
 import com.example.demo.Services.AttendanceService;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.zip.DataFormatException;
 
 @RestController
 @RequestMapping("/api/v1/attendance")
@@ -19,8 +21,8 @@ public class AttendanceController {
 
     private final AttendanceService attendanceService;
 
-    @GetMapping("{id}")
-    public ResponseEntity<List<AttendanceLog>> getAllAttendanceLogsByUserId(
+    @GetMapping("log/{id}")
+    public ResponseEntity<List<AttendanceLogDto>> getAllAttendanceLogsByUserId(
             @PathVariable String id,
             @RequestParam(required = false) String year,
             @RequestParam(required = false) String month,
@@ -55,8 +57,46 @@ public class AttendanceController {
             listAttendance = attendanceService.getAttendanceLogsByUserId(id);
         }
 
-        return ResponseEntity.ok(listAttendance);
+        return ResponseEntity.ok(attendanceService.MapToListDto(listAttendance));
     }
+
+    @GetMapping("log/{id}/between")
+    public ResponseEntity<List<AttendanceLogDto>>  getLogsBetweenDays(
+            @PathVariable String id,
+            @RequestParam(required = true) String start,
+            @RequestParam(required = true) String end
+    ) {
+        var results = attendanceService.getAttendanceLogsByUserIdDatesBetween(id, start, end);
+        return ResponseEntity.ok(attendanceService.MapToListDto(results));
+    }
+
+    @GetMapping("log/{id}/day-between")
+    public ResponseEntity<List<AttendanceLogDto>>  getLogsBetweenDaysTime(
+            @PathVariable String id,
+            @RequestParam(required = true) int startDay,
+            @RequestParam(required = true) int startMonth,
+            @RequestParam(required = true) int startYear,
+            @RequestParam(required = true) int endDay,
+            @RequestParam(required = true) int endMonth,
+            @RequestParam(required = true) int endYear
+
+    ) throws DataFormatException {
+        var results = attendanceService.getAttendanceLogsByUserIdDatesBetween(id,
+                startYear, endYear, startMonth, endMonth, startDay, endDay);
+        return ResponseEntity.ok(attendanceService.MapToListDto(results));
+    }
+
+    @GetMapping("/statistic/{id}/between")
+    public ResponseEntity<Statistic> getStatisticByUserIdBetweenDates(
+            @PathVariable String id,
+            @RequestParam(required = true) String start,
+            @RequestParam(required = true) String end
+    ) {
+        logger.info("Getting attendance logs by userId.");
+        Statistic statistic = attendanceService.getStatisticByUserIdBetweenTwoDates(id,start,end);
+        return ResponseEntity.ok(statistic);
+    }
+
 
     @GetMapping("/statistic/{id}")
     public ResponseEntity<Statistic> getStatisticByUserId(

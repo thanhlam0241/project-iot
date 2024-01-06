@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +27,9 @@ public class UserService {
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
     private final ManagementUnitRepository managementUnitRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
     public List<String> getAllUserIds() {
         return userRepository.findAll().stream()
                 .map(User::getId)
@@ -94,6 +98,7 @@ public class UserService {
                     .orElseThrow(() -> new NotFoundException("Management unit not found"));
             user.setManagementUnit(managementUnit);
         }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return true;
     }

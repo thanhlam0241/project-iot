@@ -1,3 +1,5 @@
+/* eslint-disable*/
+
 import PropTypes from 'prop-types';
 
 import { useTheme } from '@mui/material/styles';

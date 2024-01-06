@@ -2,6 +2,8 @@ import PropTypes from 'prop-types';
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useContext, createContext } from "react";
 
+import authApi from 'src/api/authApi';
+
 const AuthContext = createContext();
 
 const avatar = {
@@ -36,18 +38,12 @@ const useAuthProvider = () => {
         //     navigate('/login')
         // }
     }, [auth, navigate])
-    const login = async () => {
-        const user = {
-            username: 'buitrongduc',
-            fullname: 'Bui Trong Duc',
-            identityCard: '033449232434',
-            phone: '0334492324',
-            role: 'ADMIN',
-            avatar: avatar.ADMIN,
-            email: 'buitrongduc@gmail.com',
-            address: 'Ha Noi'
+    const login = async (username, password) => {
+        const response = await authApi.login(username, password)
+        if (response.data) {
+            const userData = response.data.user
+            setAuth(userData)
         }
-        setAuth(user)
     }
     const logout = async () => {
         setAuth(null)

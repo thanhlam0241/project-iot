@@ -54,22 +54,30 @@ public class AttendanceLogService {
         attendanceMachineRepository.save(attendanceMachine1);
         return true;
     }
+    public boolean updateMany(List<AttendanceLog> logs) {
+        attendanceLogRepository.saveAll(logs);
+        return true;
+    }
+    public void testUpdate(){
+        List<AttendanceLog> list = attendanceLogRepository.findAll();
+        for (AttendanceLog a : list){
+            a.setManagementUnit(a.getAttendanceMachine().getManagementUnit());
+        }
+
+        attendanceLogRepository.saveAll(list);
+    }
     public boolean deleteMachine(String id) {
         var attendanceMachine = attendanceMachineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("AttendanceMachine with id " + id + " does not exist"));
         attendanceMachineRepository.delete(attendanceMachine);
         return true;
     }
-    public void insertAttendanceLog(AttendanceLogCreateDto attendanceLogCreateDto) {
-        if(!"123456".equals(attendanceLogCreateDto.getPassword())) {
-            throw new BadRequestException("Device Password is incorrect");
-        }
-
-        var attendanceMachine = attendanceMachineRepository.findById(attendanceLogCreateDto.getAttendanceMachineCode())
-                .orElseThrow(() -> new NotFoundException("AttendanceMachine with id " + attendanceLogCreateDto.getAttendanceMachineCode() + " does not exist"));
-
-
-        AttendanceLog attendanceLog = new AttendanceLog();
+    public AttendanceLog insertAttendanceLog(AttendanceLogCreateDto attendanceLogCreateDto) {
+        var attendanceMachine = attendanceMachineRepository.findById(attendanceLogCreateDto.getAttendanceMachineId())
+                .orElseThrow(() -> new IllegalArgumentException("AttendanceMachine with id " + attendanceLogCreateDto.getAttendanceMachineId() + " does not exist"));
+        var user = userRepository.findById(attendanceLogCreateDto.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("User with id " + attendanceLogCreateDto.getUserId() + " does not exist"));
+        AttendanceLog attendanceLog = modelMapper.map(attendanceLogCreateDto, AttendanceLog.class);
         attendanceLog.setAttendanceMachine(attendanceMachine);
         attendanceLog.setManagementUnit(attendanceMachine.getManagementUnit());
         //attendanceLog.setUser(user);
@@ -90,6 +98,7 @@ public class AttendanceLogService {
         attendanceLog.setDayOfWeek(dayOfWeek);
         attendanceLog.setHour(hour);
         attendanceLog.setMinute(minute);
+        attendanceLog.setManagementUnit(attendanceMachine.getManagementUnit());
 
         StatusLog statusLog = ShiftUtil.getStatusLog(hour, minute);
         if(statusLog == StatusLog.ON_TIME) {
@@ -112,6 +121,7 @@ public class AttendanceLogService {
         Shift shift = ShiftUtil.getShift(hour);
         attendanceLog.setShift(shift);
 
-        attendanceLogRepository.save(attendanceLog);
+        var result = attendanceLogRepository.save(attendanceLog);
+        return result;
     }
 }
