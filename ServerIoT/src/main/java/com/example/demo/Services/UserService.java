@@ -39,7 +39,10 @@ public class UserService {
     public UserDto getUserById(String id) {
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return modelMapper.map(user, UserDto.class);
+        var result =  modelMapper.map(user, UserDto.class);
+        result.setManagementUnitName(user.getManagementUnit().getName());
+        result.setManagementUnitId(user.getManagementUnit().getId());
+        return result;
     }
 
     public List<User> getAllEmployee(){
@@ -64,7 +67,10 @@ public class UserService {
     public UserDto getUserByUsername(String username) {
         var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return modelMapper.map(user, UserDto.class);
+        var result =  modelMapper.map(user, UserDto.class);
+        result.setManagementUnitName(user.getManagementUnit().getName());
+        result.setManagementUnitId(user.getManagementUnit().getId());
+        return result;
     }
 
     public List<UserDto> getAllUsers() {

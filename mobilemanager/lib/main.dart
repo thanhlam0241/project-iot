@@ -1,8 +1,10 @@
 import 'package:mobilemanager/pages/camera-test/camera-test.dart';
 import 'package:mobilemanager/pages/home/home-page.dart';
+import 'package:mobilemanager/pages/routes.dart';
 import 'package:mobilemanager/utils/devices-info.dart';
 import 'package:mobilemanager/utils/logger.dart';
 import 'package:flutter/material.dart';
+import 'package:url_strategy/url_strategy.dart';
 
 Future<void> main() async {
   // await mainCameraTest();
@@ -13,7 +15,7 @@ Future<void> main() async {
   } on Exception catch (e) {
     Logger.log(e);
   }
-
+  setPathUrlStrategy();
   runApp(const MyApp());
 }
 
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Attendance Machine',
       theme: ThemeData(
         // This is the theme of your application.
@@ -44,7 +46,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const HomePage(title: 'Manager App'),
+      routerConfig: routes,
     );
   }
 }

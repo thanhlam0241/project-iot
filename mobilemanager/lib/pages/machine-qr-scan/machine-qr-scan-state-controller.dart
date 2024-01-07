@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:mobilemanager/models/add-machine-response.dart';
 import 'package:mobilemanager/services/attendance-machine-service.dart';
 import 'package:mobilemanager/services/barcode-scanning-service.dart';
@@ -96,12 +97,29 @@ class MachineQrScanStateController {
       );
       if(state.mounted){
         scanCompleted = true;
-        Navigator.of(state.context).pop(response);
+        GoRouter.of(state.context).pop(response);
         return false;
       }
 
       return true;
     });
+  }
+
+  Future<void> takePhoto() async{
+    var imageFile = await takePicture();
+    var deviceId = DevicesInfo.info.deviceId;
+    var password = DevicesInfo.info.passwordManufactory;
+
+    if(imageFile != null){
+      if(state.mounted){
+        GoRouter.of(state.context).pop(AddMachineState.SUCCESS);
+      }
+    }
+    else{
+      if(state.mounted){
+        GoRouter.of(state.context).pop(AddMachineState.ERROR);
+      }
+    }
   }
 
   void initState(MachineQrScanState state) {
@@ -305,19 +323,6 @@ class MachineQrScanStateController {
     } on CameraException catch (e) {
       _showCameraException(e);
       return null;
-    }
-  }
-
-  Future<void> takePhoto() async{
-    var imageFile = await takePicture();
-    var deviceId = DevicesInfo.info.deviceId;
-    var password = DevicesInfo.info.passwordManufactory;
-
-    if(imageFile != null){
-      Navigator.of(state.context).pop(AddMachineState.SUCCESS);
-    }
-    else{
-      Navigator.of(state.context).pop(AddMachineState.ERROR);
     }
   }
 }

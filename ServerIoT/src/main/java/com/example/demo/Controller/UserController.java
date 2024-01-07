@@ -56,6 +56,13 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("/getByUsername/{username}")
+    public ResponseEntity getUserByUsername(@PathVariable String username) {
+        logger.info("Getting user with Username: {}.", username);
+        var user = userService.getUserByUsername(username);
+        return ResponseEntity.ok(user);
+    }
+
     @GetMapping("/id")
     public ResponseEntity<List<String>> getAllEmployeeIds() {
         logger.info("Getting all user employee ids.");

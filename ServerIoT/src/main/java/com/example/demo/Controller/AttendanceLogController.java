@@ -25,7 +25,7 @@ public class AttendanceLogController {
 
     @PostMapping()
     public ResponseEntity<String> insertLog(@RequestBody AttendanceLogCreateDto body) {
-        attendanceLogService.insertAttendanceLog(body);
+//        attendanceLogService.insertAttendanceLog(body);
         return ResponseEntity.ok("Insert attendance log successfully");
     }
 }

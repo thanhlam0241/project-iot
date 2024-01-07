@@ -1,6 +1,7 @@
 package com.example.demo.Controller;
 
 import com.example.demo.DTO.AttendanceMachine.AttendanceMachineCreateDto;
+import com.example.demo.DTO.AttendanceMachine.AttendanceMachineDto;
 import com.example.demo.DTO.AttendanceMachine.AttendanceMachineInsertOrReplaceDto;
 import com.example.demo.DTO.AttendanceMachine.AttendanceMachineUpdateDto;
 import com.example.demo.Entites.AttendanceMachine;
@@ -22,9 +23,11 @@ public class AttendanceMachineController {
     private final AttendanceMachineService attendanceMachineService;
 
     @GetMapping
-    public ResponseEntity<List<AttendanceMachine>> getAttendanceMachine() {
+    public ResponseEntity<List<AttendanceMachineDto>> getAllAttendanceMachines(
+            @RequestParam(required = false, defaultValue = "") String managementUnitId
+    ) {
         logger.info("getAttendanceMachine");
-        var attendanceMachines = attendanceMachineService.getAllAttendanceMachines();
+        var attendanceMachines = attendanceMachineService.getAllAttendanceMachines(managementUnitId);
         return ResponseEntity.ok(attendanceMachines);
     }
 

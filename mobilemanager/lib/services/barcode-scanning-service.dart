@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/painting.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:mobilemanager/utils/logger.dart';
 
 /// Barcode detected handler
 /// [barcode] is the detected barcode
@@ -29,7 +30,17 @@ class BarcodeScanningService {
       var result = await processImage(scanner, inputImage);
       if(result != ''){
         if(!handler(result)){
-          cameraController!.stopImageStream();
+          try{
+            if(cameraController?.value.isStreamingImages == true){
+              cameraController?.stopImageStream();
+            }
+          }
+          on Error catch (_, e){
+            var x = e;
+          }
+          on Exception catch (_, e){
+            var x = e;
+          }
         }
       }
     });

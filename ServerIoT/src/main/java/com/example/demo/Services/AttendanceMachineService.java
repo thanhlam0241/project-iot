@@ -1,6 +1,7 @@
 package com.example.demo.Services;
 
 import com.example.demo.DTO.AttendanceMachine.AttendanceMachineCreateDto;
+import com.example.demo.DTO.AttendanceMachine.AttendanceMachineDto;
 import com.example.demo.DTO.AttendanceMachine.AttendanceMachineInsertOrReplaceDto;
 import com.example.demo.DTO.AttendanceMachine.AttendanceMachineUpdateDto;
 import com.example.demo.Entites.AttendanceMachine;
@@ -51,8 +52,27 @@ public class AttendanceMachineService {
                 .orElseThrow(() -> new NotFoundException("Attendance Machine not found"));
     }
 
-    public List<AttendanceMachine> getAllAttendanceMachines() {
-        return attendanceMachineRepository.findAll();
+    public List<AttendanceMachineDto> getAllAttendanceMachines(String managementUnitId) {
+        if(managementUnitId == null || managementUnitId.isEmpty()) {
+            return attendanceMachineRepository.findAll().stream().map(attendanceMachine -> {
+                var dto = modelMapper.map(attendanceMachine, AttendanceMachineDto.class);
+                var managementUnit = attendanceMachine.getManagementUnit();
+                if (managementUnit != null) {
+                    dto.setManagementUnitName(managementUnit.getName());
+                    dto.setManagementUnitId(managementUnit.getId());
+                }
+                return dto;
+            }).toList();
+        }
+        return attendanceMachineRepository.findAllByManagementUnitId(managementUnitId).stream().map(attendanceMachine -> {
+            var dto = modelMapper.map(attendanceMachine, AttendanceMachineDto.class);
+            var managementUnit = attendanceMachine.getManagementUnit();
+            if (managementUnit != null) {
+                dto.setManagementUnitName(managementUnit.getName());
+                dto.setManagementUnitId(managementUnit.getId());
+            }
+            return dto;
+        }).toList();
     }
 
     public AttendanceMachine insertOrUpdateAttendanceMachine(AttendanceMachineInsertOrReplaceDto dto) {

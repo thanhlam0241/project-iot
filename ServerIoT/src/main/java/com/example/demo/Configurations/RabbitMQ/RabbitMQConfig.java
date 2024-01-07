@@ -74,7 +74,7 @@ public class RabbitMQConfig {
 
     @Bean
     DirectExchange exchange() {
-        return new DirectExchange(faceIdExchangeName);
+        return new DirectExchange(exchange);
     }
 
     @Bean

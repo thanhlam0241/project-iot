@@ -3,8 +3,9 @@ class ApiResponse<T> {
   final T? data;
   final String message;
 
-  ApiResponse.success(this.data) : status = Status.COMPLETED, message = "";
+  ApiResponse.success(this.data) : status = Status.SUCCESS, message = "";
   ApiResponse.error(this.message) : status = Status.ERROR, data = null;
+  ApiResponse.unauthorized(this.message) : status = Status.UNAUTHORIZED, data = null;
 
   @override
   String toString() {
@@ -12,4 +13,4 @@ class ApiResponse<T> {
   }
 }
 
-enum Status { SUCCESS, ERROR, COMPLETED, LOADING }
+enum Status { SUCCESS, ERROR, UNAUTHORIZED }

@@ -95,14 +95,14 @@ class MachineQrScanState extends State<MachineQrScan>
                 ],
               ),
             ),
-            Container(
-              margin: const EdgeInsets.only(
-                  top: 20.0, bottom: 20, left: 20, right: 20),
-              child: FilledButton(
-                onPressed: _takePhoto,
-                child: const Text('Quét QR'),
-              ),
-            ),
+            // Container(
+            //   margin: const EdgeInsets.only(
+            //       top: 20.0, bottom: 20, left: 20, right: 20),
+            //   child: FilledButton(
+            //     onPressed: _takePhoto,
+            //     child: const Text('Quét QR'),
+            //   ),
+            // ),
           ],
         ),
       ),
