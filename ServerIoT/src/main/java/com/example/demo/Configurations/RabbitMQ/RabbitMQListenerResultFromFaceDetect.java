@@ -31,15 +31,17 @@ public class RabbitMQListenerResultFromFaceDetect implements MessageListener {
 
 //            System.out.println("Current Time: " + currentTime);
 
+            // Get data from queue json
             String stringTime = jsonObject.getString("time");
-
             LocalDateTime time = LocalDateTime.parse(stringTime, formatter);
             String userId = jsonObject.getString("userId");
             String attendanceMachineId = jsonObject.getString("attendanceMachineId");
 
+            // Insert data to database
             AttendanceLogCreateDto dto = new AttendanceLogCreateDto(time, "", attendanceMachineId, userId);
             var attendanceLog =attendanceLogService.insertAttendanceLog(dto);
 
+            // Send data to topic websocket
             template.convertAndSend("/topic/new-attendance-log", attendanceLog);
 
         } catch (Exception e) {

@@ -1,6 +1,6 @@
 /* eslint-disable */
-import React, { useState, useEffect } from 'react';
-const SOCKET_URL = 'http://localhost:8080/ws';
+import React, { useState, useEffect, useRef } from 'react';
+const SOCKET_URL = 'https://server-iot-tggk.onrender.com/ws';
 
 import axios from 'src/api/axios'
 import { over } from 'stompjs';
@@ -10,7 +10,7 @@ import { Button } from '@mui/material'
 
 import sendPostRequest from 'src/utils/generateData.js';
 
-var stompClient = null;
+// var stompClient = null;
 function Socket() {
     const [message, setMessage] = useState('You server message here.');
 
@@ -22,6 +22,12 @@ function Socket() {
     const [year, setYear] = useState(2023);
     const [shift, setShift] = useState('morning');
     const [count, setCount] = useState(0);
+
+    const stompClient = useRef(null);
+
+    useEffect(() => {
+        connect();
+    }, [stompClient.current])
 
     // const [isInterval, setIsInterval] = useState(false);
 
@@ -52,50 +58,52 @@ function Socket() {
 
     const connect = () => {
         let Sock = new SockJS(SOCKET_URL);
-        stompClient = over(Sock);
-        stompClient.connect({}, onConnected, onError);
+        stompClient.current = over(Sock);
+        stompClient.current.connect({}, onConnected, onError);
     }
 
     const onConnected = () => {
-        stompClient.subscribe('/topic/new-attendance-log', onMessageReceived);
+        stompClient.current.subscribe('/topic/message', onMessageReceived);
     }
 
     const onMessageReceived = (payload) => {
         var payloadData = JSON.parse(payload.body);
         console.log(payloadData)
+        setMessage(payloadData.name);
     }
 
-    const increase = () => {
-        if (count === 10) {
-            setIsInterval(false)
-            return
-        }
-        if (shift === 'morning') {
-            setShift('afternoon')
-        }
-        else {
-            setShift('morning')
-            if (day === 29) {
-                setDay(1)
-                if (month === 12) {
-                    setMonth(1)
-                    setYear(year + 1)
-                } else {
-                    setMonth(month + 1)
-                }
-            }
-            else {
-                setDay(day + 1)
-            }
-        }
-        setCount(count + 1)
-    }
+    // const increase = () => {
+    //     if (count === 10) {
+    //         setIsInterval(false)
+    //         return
+    //     }
+    //     if (shift === 'morning') {
+    //         setShift('afternoon')
+    //     }
+    //     else {
+    //         setShift('morning')
+    //         if (day === 29) {
+    //             setDay(1)
+    //             if (month === 12) {
+    //                 setMonth(1)
+    //                 setYear(year + 1)
+    //             } else {
+    //                 setMonth(month + 1)
+    //             }
+    //         }
+    //         else {
+    //             setDay(day + 1)
+    //         }
+    //     }
+    //     setCount(count + 1)
+    // }
 
     const sendMessage = () => {
+        if (!stompClient.current) return;
         var chatMessage = {
             name: 'Hello World'
         };
-        stompClient.send("/app/sendMessage", {}, JSON.stringify(chatMessage));
+        stompClient.current.send("/app/sendMessage", {}, JSON.stringify(chatMessage));
     }
 
     const onError = (err) => {
@@ -119,7 +127,7 @@ function Socket() {
             </h1>
             <Button onClick={connect}>Connect</Button>
             <Button onClick={sendMessage}>Send message</Button>
-            <Button onClick={() => setIsInterval(true)}>Send message</Button>
+            {/* <Button onClick={() => setIsInterval(true)}>Send message</Button> */}
         </div>
     );
 }
