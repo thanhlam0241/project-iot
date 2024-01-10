@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface AttendanceMachineRepository extends BaseRepository<AttendanceMachine,String> {
     List<AttendanceMachine> findAllByManagementUnitId(String id);
+    AttendanceMachine findByCode(String code);
 }
