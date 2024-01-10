@@ -25,7 +25,6 @@ class LoginInfo {
         '"userId": "$userId", '
         '"password": "$password", '
         '"token": "$token", '
-        '"managementUnitId": '
-        '"$managementUnitId"}';
+        '"managementUnitId": "$managementUnitId"}';
   }
 }

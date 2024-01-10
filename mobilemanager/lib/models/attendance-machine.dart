@@ -35,6 +35,7 @@ class AttendanceMachine extends BaseEntity {
     return '{"id": "$id", '
         '"managementUnitId": "$managementUnitId", '
         '"code": "$code", '
-        '"name": "$name", ';
+        '"name": "$name"'
+        '}';
   }
 }

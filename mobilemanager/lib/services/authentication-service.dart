@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:mobilemanager/models/login-info.dart';
@@ -55,17 +56,17 @@ class AuthenticationService {
       if(userReq.status != Status.SUCCESS){
         return ApiResponse<LoginInfo>.error(userReq.message);
       }
-      else if(userReq.data!.role != Role.ADMIN || userReq.data!.role != Role.MANAGER){
+      else if(userReq.data!.role != Role.ADMIN && userReq.data!.role != Role.MANAGER){
         return ApiResponse.error("Chỉ quản lý mới có thể đăng nhập");
       }
 
       if(response.statusCode == 200){
-
+        var token = jsonDecode(response.body)['token'];
         var loginInfo = LoginInfo(
             userId: userReq.data!.id,
             username: username,
             password: password,
-            token: response.body,
+            token: token,
             managementUnitId: userReq.data!.managementUnitId);
         _saveLoginInfoToStorage(loginInfo)
             .then((value) => _isLoginInfoSaved = true)

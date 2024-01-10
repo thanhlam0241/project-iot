@@ -16,7 +16,8 @@ final routes = GoRouter(
     routes: <RouteBase>[
         GoRoute(
             path: '/',
-            builder: (context, state) => const HomePage(title: 'Quản lý máy chấm công'),
+            builder: (context, state) => LoginPage(),
+            // builder: (context, state) => const HomePage(title: 'Quản lý máy chấm công'),
         ),
         GoRoute(
             path: RouteUrls.LOGIN_URL,

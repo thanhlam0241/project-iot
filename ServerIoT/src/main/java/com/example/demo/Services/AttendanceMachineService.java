@@ -39,17 +39,33 @@ public class AttendanceMachineService {
                 .orElseThrow(() -> new NotFoundException("Attendance Machine not found"));
         attendanceMachine.setCode(attendanceMachineUpdateDto.getCode());
         attendanceMachine.setName(attendanceMachineUpdateDto.getName());
-        if(!attendanceMachine.getManagementUnit().getId().equals(attendanceMachineUpdateDto.getManagementUnitId())) {
-            var managementUnit = managementUnitRepository.findById(attendanceMachineUpdateDto.getManagementUnitId())
-                    .orElseThrow(() -> new NotFoundException("Management Unit not found"));
-            attendanceMachine.setManagementUnit(managementUnit);
+        if(attendanceMachine.getManagementUnit() == null
+                && attendanceMachineUpdateDto.getManagementUnitId() != null
+                && !attendanceMachineUpdateDto.getManagementUnitId().isEmpty()
+                ||
+                attendanceMachine.getManagementUnit() != null &&
+                !attendanceMachine.getManagementUnit().getId().equals(attendanceMachineUpdateDto.getManagementUnitId())) {
+            var managementUnitOptional = managementUnitRepository.findById(attendanceMachineUpdateDto.getManagementUnitId());
+            if(managementUnitOptional.isEmpty()) {
+                attendanceMachine.setManagementUnit(null);
+            }
+            else {
+                attendanceMachine.setManagementUnit(managementUnitOptional.get());
+            }
         }
         attendanceMachineRepository.save(attendanceMachine);
     }
 
-    public AttendanceMachine getAttendanceMachineById(String id) {
-        return attendanceMachineRepository.findById(id)
+    public AttendanceMachineDto getAttendanceMachineById(String id) {
+        var machine = attendanceMachineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Attendance Machine not found"));
+        var dto = modelMapper.map(machine, AttendanceMachineDto.class);
+        var managementUnit = machine.getManagementUnit();
+        if (managementUnit != null) {
+            dto.setManagementUnitName(managementUnit.getName());
+            dto.setManagementUnitId(managementUnit.getId());
+        }
+        return dto;
     }
 
     public List<AttendanceMachineDto> getAllAttendanceMachines(String managementUnitId) {
