@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -33,20 +34,22 @@ public class TestController {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private RedisTemplate<String, String> template;
 
+    private static final String STRING_KEY_PREFIX = "redi2read:strings:";
 
-    @GetMapping
-    public ResponseEntity<String> updateLogs(){
-        List<User> users = userRepository.findAll();
-
-        for(User user : users){
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userRepository.save(user);
-        }
-
-        return ResponseEntity.ok("Hello");
+    @PostMapping("redis")
+    public ResponseEntity<?> testPostRedis(@RequestParam String key, @RequestParam String value){
+        template.opsForValue().set(STRING_KEY_PREFIX + key, value);
+        return ResponseEntity.ok("Redis successfully");
     }
 
+    @GetMapping("redis")
+    public ResponseEntity<?> testGetRedis(@RequestParam String key){
+        String result = template.opsForValue().get(STRING_KEY_PREFIX + key);
+        return ResponseEntity.ok(result);
+    }
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile files) throws Exception {
         String fileName = fileStorageService.storeFile(files);
