@@ -14,7 +14,7 @@ import sendPostRequest from 'src/utils/generateData.js';
 function Socket() {
     const [message, setMessage] = useState('You server message here.');
 
-    const websocket = new WebSocket("wss://server-iot-tggk.onrender.com/ws")
+    // const websocket = new WebSocket("wss://server-iot-tggk.onrender.com/ws")
 
     // const [users, setUsers] = useState([]);
     // const [listMachines, setListMachines] = useState([]);
@@ -25,25 +25,25 @@ function Socket() {
     // const [shift, setShift] = useState('morning');
     // const [count, setCount] = useState(0);
 
-    // const stompClient = useRef(null);
-
-    useEffect(() => {
-        if (websocket) {
-            websocket.onopen = () => {
-                console.log('connected')
-            }
-            websocket.onmessage = (e) => {
-                console.log(e)
-            }
-            websocket.onclose = () => {
-                console.log('disconnected')
-            }
-        }
-    }, [websocket])
+    const stompClient = useRef(null);
 
     // useEffect(() => {
-    //     connect();
-    // }, [stompClient.current])
+    //     if (websocket) {
+    //         websocket.onopen = () => {
+    //             console.log('connected')
+    //         }
+    //         websocket.onmessage = (e) => {
+    //             console.log(e)
+    //         }
+    //         websocket.onclose = () => {
+    //             console.log('disconnected')
+    //         }
+    //     }
+    // }, [websocket])
+
+    useEffect(() => {
+        connect();
+    }, [stompClient.current])
 
     // const [isInterval, setIsInterval] = useState(false);
 
@@ -72,21 +72,21 @@ function Socket() {
     //     }
     // }, [users, listMachines, shift, day, month, year, isInterval])
 
-    // const connect = () => {
-    //     let Sock = new SockJS(SOCKET_URL);
-    //     stompClient.current = over(Sock);
-    //     stompClient.current.connect({}, onConnected, onError);
-    // }
+    const connect = () => {
+        let Sock = new SockJS(SOCKET_URL);
+        stompClient.current = over(Sock);
+        stompClient.current.connect({}, onConnected, onError);
+    }
 
-    // const onConnected = () => {
-    //     stompClient.current.subscribe('/topic/message', onMessageReceived);
-    // }
+    const onConnected = () => {
+        stompClient.current.subscribe('/topic/message', onMessageReceived);
+    }
 
-    // const onMessageReceived = (payload) => {
-    //     var payloadData = JSON.parse(payload.body);
-    //     console.log(payloadData)
-    //     setMessage(payloadData.name);
-    // }
+    const onMessageReceived = (payload) => {
+        var payloadData = JSON.parse(payload.body);
+        console.log(payloadData)
+        setMessage(payloadData.name);
+    }
 
     // const increase = () => {
     //     if (count === 10) {
@@ -115,18 +115,18 @@ function Socket() {
     // }
 
     const sendMessage = () => {
-        // if (!stompClient.current) return;
-        // var chatMessage = {
-        //     name: 'Hello World'
-        // };
-        // stompClient.current.send("/app/sendMessage", {}, JSON.stringify(chatMessage));
-        console.log(websocket)
-        websocket.send("Hello World")
+        if (!stompClient.current) return;
+        var chatMessage = {
+            name: 'Hello World'
+        };
+        stompClient.current.send("/app/sendMessage", {}, JSON.stringify(chatMessage));
+        // console.log(websocket)
+        // websocket.send("Hello World")
     }
 
-    // const onError = (err) => {
-    //     console.log(err);
-    // }
+    const onError = (err) => {
+        console.log(err);
+    }
 
     // const seedDataUser = () => {
     //     if (users.length > 0 && listMachines.length > 0) {

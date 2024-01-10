@@ -22,6 +22,15 @@ spring:
 #      max-request-size=215MB
       ## File Storage Properties
       # All files uploaded through the REST API will be stored in this directory
+  cache:
+    type: redis
+  redis:
+    database: 0
+    host: redis-19363.c321.us-east-1-2.ec2.cloud.redislabs.com
+    port: 19363
+    username: thanhlam02412002
+    password: Hoatuyet_0241
+    timeout: 60000
 
 application:
   security:
