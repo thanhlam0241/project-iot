@@ -32,7 +32,7 @@ public class AttendanceMachineController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<AttendanceMachine> getAttendanceMachineById(@PathVariable String id) {
+    public ResponseEntity<AttendanceMachineDto> getAttendanceMachineById(@PathVariable String id) {
         logger.info("getAttendanceMachineById");
         var attendanceMachine = attendanceMachineService.getAttendanceMachineById(id);
         return ResponseEntity.ok(attendanceMachine);

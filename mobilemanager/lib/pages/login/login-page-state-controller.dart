@@ -50,7 +50,7 @@ class LoginPageStateController {
   }
 
   void login() async {
-    var username = usernameController.text;
+    var username = usernameController.text.trim();
     var password = passwordController.text;
     if(username.isEmpty || password.isEmpty) {
       if(state.mounted) {

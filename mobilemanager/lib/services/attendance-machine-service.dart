@@ -82,12 +82,13 @@ class AttendanceMachineService {
 
   Future<ApiResponse<void>> updateMachine(AttendanceMachine machine) async {
     try{
+      final requestBody = machine.toJson();
       var response = await http.put(
         Uri.parse('$URL/${machine.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: machine.toJson(),
+        body: requestBody,
       );
       if(response.statusCode == 200){
         return ApiResponse.success(null);

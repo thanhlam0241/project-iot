@@ -73,29 +73,76 @@ class MachineDetailController {
     }
   }
 
-  void linkWithUnit() {
-    isLinkingWithUnit = true;
+  void linkWithUnit() async {
     state.setState(() {
+      isDisabled = true;
     });
-    // var machine = state.widget.machine;
-    // machine.isLinkingWithUnit = isLinkingWithUnit;
-    // AttendanceMachineService.instance.updateMachine(machine)
-    // .then((value) {
-    //   if(value.status == Status.SUCCESS){
-    //     state.setState(() {
-    //       isLinkingWithUnit = machine.isLinkingWithUnit;
-    //     });
-    //   }
-    //   else{
-    //     machine.isLinkingWithUnit = isLinkingWithUnit;
-    //     state.showInSnackBar(value.message);
-    //   }
-    // });
+    final loginInfo = await AuthenticationService.instance.getLoginInfo();
+    isDisabled = false;
+    if(loginInfo == null){
+      state.showInSnackBar("Bạn cần đăng nhập để liên kết");
+      if(state.mounted){
+        state.setState(() {});
+      }
+      return;
+    }
+    if(machine == null){
+      if(state.mounted){
+        state.setState(() {});
+      }
+      return;
+    }
+
+    machine!.managementUnitId = loginInfo.managementUnitId;
+    final result = await AttendanceMachineService.instance.updateMachine(machine!);
+    if(result.status == Status.SUCCESS){
+      isLinkingWithUnit = true;
+    }
+    else{
+      machine!.managementUnitId = null;
+      state.showInSnackBar(result.message);
+    }
+
+    if(state.mounted){
+      state.setState(() {
+        isDisabled = false;
+      });
+    }
   }
 
-  void unlinkWithUnit() {
-    isLinkingWithUnit = false;
+  void unlinkWithUnit() async {
     state.setState(() {
+      isDisabled = true;
+    });
+
+    final loginInfo = await AuthenticationService.instance.getLoginInfo();
+    isDisabled = false;
+    if(loginInfo == null){
+      state.showInSnackBar("Bạn cần đăng nhập để hủy liên kết");
+      if(state.mounted){
+        state.setState(() {});
+      }
+      return;
+    }
+    if(machine == null){
+      if(state.mounted){
+        state.setState(() {});
+      }
+      return;
+    }
+
+    machine!.managementUnitId = null;
+    final result = await AttendanceMachineService.instance.updateMachine(machine!);
+    if(result.status == Status.SUCCESS){
+      isLinkingWithUnit = false;
+    }
+    else{
+      machine!.managementUnitId = loginInfo.managementUnitId;
+      state.showInSnackBar(result.message);
+    }
+
+    state.setState(() {
+      isDisabled = false;
     });
   }
 }
