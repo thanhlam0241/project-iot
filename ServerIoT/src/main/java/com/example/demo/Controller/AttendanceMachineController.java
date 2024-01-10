@@ -1,7 +1,9 @@
 package com.example.demo.Controller;
 
 import com.example.demo.DTO.AttendanceMachine.AttendanceMachineCreateDto;
-import com.example.demo.DTO.AttendanceMachine.AttendanceUpdateDto;
+import com.example.demo.DTO.AttendanceMachine.AttendanceMachineDto;
+import com.example.demo.DTO.AttendanceMachine.AttendanceMachineInsertOrReplaceDto;
+import com.example.demo.DTO.AttendanceMachine.AttendanceMachineUpdateDto;
 import com.example.demo.Entites.AttendanceMachine;
 import com.example.demo.Services.AttendanceMachineService;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +23,11 @@ public class AttendanceMachineController {
     private final AttendanceMachineService attendanceMachineService;
 
     @GetMapping
-    public ResponseEntity<List<AttendanceMachine>> getAttendanceMachine() {
+    public ResponseEntity<List<AttendanceMachineDto>> getAllAttendanceMachines(
+            @RequestParam(required = false, defaultValue = "") String managementUnitId
+    ) {
         logger.info("getAttendanceMachine");
-        var attendanceMachines = attendanceMachineService.getAllAttendanceMachines();
+        var attendanceMachines = attendanceMachineService.getAllAttendanceMachines(managementUnitId);
         return ResponseEntity.ok(attendanceMachines);
     }
 
@@ -42,7 +46,7 @@ public class AttendanceMachineController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity updateAttendanceMachine(@PathVariable String id, @RequestBody AttendanceUpdateDto attendanceMachine) {
+    public ResponseEntity updateAttendanceMachine(@PathVariable String id, @RequestBody AttendanceMachineUpdateDto attendanceMachine) {
         logger.info("updateAttendanceMachine");
         attendanceMachineService.updateAttendanceMachine(id, attendanceMachine);
         return ResponseEntity.ok("AttendanceMachine updated successfully");
@@ -53,5 +57,12 @@ public class AttendanceMachineController {
         logger.info("deleteAttendanceMachine");
         attendanceMachineService.deleteAttendanceMachine(id);
         return ResponseEntity.ok("AttendanceMachine deleted successfully");
+    }
+
+    @PatchMapping()
+    public ResponseEntity insertOrUpdateAttendanceMachine(@RequestBody AttendanceMachineInsertOrReplaceDto attendanceMachine) {
+        logger.info("updateAttendanceMachine");
+        var result = attendanceMachineService.insertOrUpdateAttendanceMachine(attendanceMachine);
+        return ResponseEntity.ok(result);
     }
 }

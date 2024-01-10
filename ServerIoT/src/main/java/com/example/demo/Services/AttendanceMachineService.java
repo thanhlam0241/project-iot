@@ -1,7 +1,9 @@
 package com.example.demo.Services;
 
 import com.example.demo.DTO.AttendanceMachine.AttendanceMachineCreateDto;
-import com.example.demo.DTO.AttendanceMachine.AttendanceUpdateDto;
+import com.example.demo.DTO.AttendanceMachine.AttendanceMachineDto;
+import com.example.demo.DTO.AttendanceMachine.AttendanceMachineInsertOrReplaceDto;
+import com.example.demo.DTO.AttendanceMachine.AttendanceMachineUpdateDto;
 import com.example.demo.Entites.AttendanceMachine;
 import com.example.demo.Exception.Model.NotFoundException;
 import com.example.demo.Repository.AttendanceMachineRepository;
@@ -32,7 +34,7 @@ public class AttendanceMachineService {
         attendanceMachineRepository.deleteById(id);
     }
 
-    public void updateAttendanceMachine(String id, AttendanceUpdateDto attendanceMachineUpdateDto) {
+    public void updateAttendanceMachine(String id, AttendanceMachineUpdateDto attendanceMachineUpdateDto) {
         var attendanceMachine = attendanceMachineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Attendance Machine not found"));
         attendanceMachine.setCode(attendanceMachineUpdateDto.getCode());
@@ -50,7 +52,38 @@ public class AttendanceMachineService {
                 .orElseThrow(() -> new NotFoundException("Attendance Machine not found"));
     }
 
-    public List<AttendanceMachine> getAllAttendanceMachines() {
-        return attendanceMachineRepository.findAll();
+    public List<AttendanceMachineDto> getAllAttendanceMachines(String managementUnitId) {
+        if(managementUnitId == null || managementUnitId.isEmpty()) {
+            return attendanceMachineRepository.findAll().stream().map(attendanceMachine -> {
+                var dto = modelMapper.map(attendanceMachine, AttendanceMachineDto.class);
+                var managementUnit = attendanceMachine.getManagementUnit();
+                if (managementUnit != null) {
+                    dto.setManagementUnitName(managementUnit.getName());
+                    dto.setManagementUnitId(managementUnit.getId());
+                }
+                return dto;
+            }).toList();
+        }
+        return attendanceMachineRepository.findAllByManagementUnitId(managementUnitId).stream().map(attendanceMachine -> {
+            var dto = modelMapper.map(attendanceMachine, AttendanceMachineDto.class);
+            var managementUnit = attendanceMachine.getManagementUnit();
+            if (managementUnit != null) {
+                dto.setManagementUnitName(managementUnit.getName());
+                dto.setManagementUnitId(managementUnit.getId());
+            }
+            return dto;
+        }).toList();
+    }
+
+    public AttendanceMachine insertOrUpdateAttendanceMachine(AttendanceMachineInsertOrReplaceDto dto) {
+        var device = attendanceMachineRepository.findByCode(dto.getCode());
+        if(device == null){
+            var machine = new AttendanceMachine();
+            machine.setCode(dto.getCode());
+            machine.setName(dto.getCode());
+            return attendanceMachineRepository.save(machine);
+        }
+
+        return device;
     }
 }

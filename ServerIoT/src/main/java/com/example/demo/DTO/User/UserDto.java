@@ -16,6 +16,8 @@ public class UserDto {
     private String username;
     private String fullName;
     private String code;
+    private String managementUnitId;
+    private String managementUnitName;
     private Role role;
     private boolean active;
 }

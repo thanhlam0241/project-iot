@@ -22,6 +22,25 @@ public class RabbitMQListenerResultFromFaceDetect implements MessageListener {
     @Override
     public void onMessage(Message message) {
         try {
+//            var body = new String(message.getBody());
+//            System.out.println("Consuming Message - " + new String(message.getBody()));
+//
+//            JSONObject jsonObject = new JSONObject(body);
+//
+////            String currentTime = ZonedDateTime.now().format(formatter);
+//
+////            System.out.println("Current Time: " + currentTime);
+//
+//            String stringTime = jsonObject.getString("time");
+//
+//            LocalDateTime time = LocalDateTime.parse(stringTime, formatter);
+//            String userId = jsonObject.getString("userId");
+//            String attendanceMachineId = jsonObject.getString("attendanceMachineId");
+//
+//            AttendanceLogCreateDto dto = new AttendanceLogCreateDto(time, "", attendanceMachineId, userId);
+//            var attendanceLog =attendanceLogService.insertAttendanceLog(dto);
+//
+//            template.convertAndSend("/topic/new-attendance-log", attendanceLog);
             var body = new String(message.getBody());
             System.out.println("Consuming Message - " + new String(message.getBody()));
 
