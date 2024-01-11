@@ -1,7 +1,9 @@
 import 'package:attendancemachine/services/attendance-log-service.dart';
+import 'package:attendancemachine/services/queue_service.dart';
 import 'package:attendancemachine/utils/devices-info.dart';
 import 'package:attendancemachine/utils/logger.dart';
 import 'package:camera/camera.dart';
+import 'package:dart_amqp/dart_amqp.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -11,8 +13,6 @@ import 'home-page.dart';
 
 class HomePageStateController {
   HomePageStateController({required this.state}) {}
-
-
 
   //<editor-fold desc="Private Properties">
   CameraController? controller;
@@ -80,6 +80,7 @@ class HomePageStateController {
   //</editor-fold>
 
   HomePageState state;
+  QueueExchanger queueExchanger = QueueExchanger();
 
   void initState(HomePageState state) {
     this.state = state;
@@ -108,12 +109,17 @@ class HomePageStateController {
       parent: _focusModeControlRowAnimationController,
       curve: Curves.easeInCubic,
     );
+
+    queueExchanger.init("queue.machineLog", ExchangeType.DIRECT);
+    queueExchanger.publish("hello toi la linh");
   }
 
   void dispose() {
     _flashModeControlRowAnimationController.dispose();
     _exposureModeControlRowAnimationController.dispose();
     _focusModeControlRowAnimationController.dispose();
+
+    queueExchanger.dispose();
   }
 
   Future<void> startFrontCamera() async {

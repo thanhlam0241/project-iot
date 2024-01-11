@@ -45,6 +45,7 @@ rabbitmq:
     queue-face: "queue.resultFace"
     queue-machine: "queue.machineLog"
     queue-detect: "queue.dataFace"
+    queue-machine-result: "queue.machineLog"
   exchange:
     direct: "direct-exchange"
     fanout: "fanout-exchange"
