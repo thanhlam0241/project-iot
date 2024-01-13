@@ -57,8 +57,8 @@ public class RabbitMQListenerResultFromFaceDetect implements MessageListener {
             String attendanceMachineId = jsonObject.getString("attendanceMachineId");
 
             // Insert data to database
-            AttendanceLogCreateDto dto = new AttendanceLogCreateDto(time, "", attendanceMachineId, userId);
-            var attendanceLog =attendanceLogService.insertAttendanceLog(dto);
+//            AttendanceLogCreateDto dto = new AttendanceLogCreateDto(time, "", attendanceMachineId, userId);
+//            var attendanceLog =attendanceLogService.insertAttendanceLog(dto);
 
             // Send data to topic websocket
 //            template.convertAndSend("/topic/new-attendance-log", attendanceLog);

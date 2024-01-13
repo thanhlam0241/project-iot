@@ -1,6 +1,7 @@
 /* eslint-disable */
 import React, { useState, useEffect, useRef } from 'react';
 const SOCKET_URL = 'https://server-iot-tggk.onrender.com/ws';
+// const SOCKET_URL = 'http://localhost:8080/ws';
 
 import axios from 'src/api/axios'
 import { over } from 'stompjs';
@@ -79,13 +80,13 @@ function Socket() {
     }
 
     const onConnected = () => {
-        stompClient.current.subscribe('/topic/message', onMessageReceived);
+        stompClient.current.subscribe('/topic/message/658173e25b383800bb417e2f', onMessageReceived);
     }
 
     const onMessageReceived = (payload) => {
         var payloadData = JSON.parse(payload.body);
         console.log(payloadData)
-        setMessage(payloadData.name);
+        setMessage(payloadData.msg);
     }
 
     // const increase = () => {
