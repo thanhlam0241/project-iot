@@ -8,23 +8,23 @@ spring:
   data:
     mongodb:
       uri: mongodb+srv://thanhlam0241:thanhlam0241@iot.npxkz7m.mongodb.net/?retryWrites=true&w=majority
-#      host: localhost
-#      port: 27017
+      #      host: localhost
+      #      port: 27017
       database: iot
       #username: admin
       #password: password
   servlet:
     multipart:
       # Enable multipart uploads
-#      enabled=true
-      # Threshold after which files are written to disk.
-#      multipart.file-size-threshold=2KB
-      # Max file size.
-#      max-file-size=200MB
-      # Max Request Size
-#      max-request-size=215MB
-      ## File Storage Properties
-      # All files uploaded through the REST API will be stored in this directory
+  #      enabled=true
+  # Threshold after which files are written to disk.
+  #      multipart.file-size-threshold=2KB
+  # Max file size.
+  #      max-file-size=200MB
+  # Max Request Size
+  #      max-request-size=215MB
+  ## File Storage Properties
+  # All files uploaded through the REST API will be stored in this directory
   cache:
     type: redis
   redis:
@@ -48,7 +48,7 @@ spring-doc:
     operationsSorter: method
 
 rabbitmq:
-#  uri: amqps://ubhptxwu:eh0iTQ0D22adEkSc9kyb2gB8hTZ_yVOt@armadillo.rmq.cloudamqp.com/ubhptxwu
+  #  uri: amqps://ubhptxwu:eh0iTQ0D22adEkSc9kyb2gB8hTZ_yVOt@armadillo.rmq.cloudamqp.com/ubhptxwu
   host: amqps://ubhptxwu:eh0iTQ0D22adEkSc9kyb2gB8hTZ_yVOt@armadillo.rmq.cloudamqp.com/ubhptxwu
   port: 5672
   username: ubhptxwu
@@ -58,6 +58,8 @@ rabbitmq:
     queue-input-face: "queue.model.input"
     queue-register-face: "queue.model.register"
     queue-output-face: "exchange.model.output"
+    queue-detect: "queue.dataFace"
+    queue-machine-result: "queue.machineLog"
   exchange:
     direct: "direct-exchange"
     fanout: "fanout-exchange"

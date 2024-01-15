@@ -14,8 +14,9 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage> with WidgetsBindingObserver, TickerProviderStateMixin {
-  HomePageState(){
+class HomePageState extends State<HomePage>
+    with WidgetsBindingObserver, TickerProviderStateMixin {
+  HomePageState() {
     controller = HomePageStateController(state: this);
   }
 
@@ -26,7 +27,6 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver, TickerP
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     controller.initState(this);
-    controller.startFrontCamera();
   }
 
   @override
@@ -36,8 +36,8 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver, TickerP
     super.dispose();
   }
 
-  Future<void> _takePhoto() async {
-    controller.takePhoto();
+  Future<void> _capture() async {
+    controller.takeAttendance();
   }
 
   @override
@@ -56,13 +56,14 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver, TickerP
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Visibility(
+              visible: true,
               child: Expanded(
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.black,
                     border: Border.all(
-                      color:
-                      camController != null && camController!.value.isRecordingVideo
+                      color: camController != null &&
+                              camController!.value.isRecordingVideo
                           ? Colors.redAccent
                           : Colors.grey,
                       width: 3.0,
@@ -76,18 +77,52 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver, TickerP
                   ),
                 ),
               ),
-              visible: true,
             ),
             Container(
+              margin: const EdgeInsets.only(
+                  top: 20.0, bottom: 20, left: 20, right: 20),
               child: FilledButton(
-                onPressed: _takePhoto,
-                child: const Text('Chấm công'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.indigoAccent,
+                  foregroundColor: Colors.white,
+                  fixedSize: const Size(200, 50),
+                  // padding: const EdgeInsets.all(12.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32.0),
+                  ),
+                ),
+                onPressed: controller.isCaptureBtnEnabled ? _capture : null,
+                child: controller.isCaptureBtnEnabled
+                    ? const Text('Chấm công')
+                    : const SizedBox(
+                        width: 26,
+                        height: 26,
+                        child: CircularProgressIndicator(),
+                      ),
               ),
-              margin: const EdgeInsets.only(top: 20.0, bottom: 20, left: 20, right: 20),
             ),
             Container(
               margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
               child: BarcodeView(data: deviceId),
+            ),
+            Container(
+              color: Colors.black,
+              height: 200,
+              child: ListView.builder(
+                itemCount: controller.logs.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return ListTile(
+                    title: Container(
+                      color: Colors.black,
+                      padding: const EdgeInsets.only(top: 3, bottom: 3, left: 20, right: 20),
+                      child: Text(
+                        controller.logs[index],
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    )
+                  );
+                },
+              ),
             )
           ],
         ),
@@ -115,14 +150,14 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver, TickerP
           cameraController,
           child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
-                return GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onScaleStart: controller.handleScaleStart,
-                  onScaleUpdate: controller.handleScaleUpdate,
-                  onTapDown: (TapDownDetails details) =>
-                      controller.onViewFinderTap(details, constraints),
-                );
-              }),
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onScaleStart: controller.handleScaleStart,
+              onScaleUpdate: controller.handleScaleUpdate,
+              onTapDown: (TapDownDetails details) =>
+                  controller.onViewFinderTap(details, constraints),
+            );
+          }),
         ),
       );
     }

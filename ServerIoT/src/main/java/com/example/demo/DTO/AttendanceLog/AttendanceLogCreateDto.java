@@ -15,7 +15,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 public class AttendanceLogCreateDto {
-    private String featureVector;
-    private String attendanceMachineCode;
-    private String password;
+    private LocalDateTime time;
+//    private String featureVector;
+    private String attendanceMachineId;
+    private String userId;
+    private String managementUnitId;
+
 }
