@@ -1,113 +1,71 @@
+import 'dart:io';
+
 import 'package:attendancemachine/utils/logger.dart';
 import 'package:dart_amqp/dart_amqp.dart';
+import 'package:meta/meta.dart';
+import '../utils/resources.dart' as resources;
 
-class QueueService {
-  QueueService() {
-    print('QueueService created');
-  }
-
-  void dispose() {
-    print('QueueService disposed');
-  }
-}
-
-class WaitedQueueMessage {
-  Object message;
-  String? routingKey;
-  WaitedQueueMessage(this.message, {this.routingKey});
-}
-
-class QueueExchanger {
+abstract class QueueService {
+  @protected
   Client? client;
+
+  @protected
   Channel? channel;
-  Exchange? exchange;
 
   bool _isReady = false;
   bool get isReady => _isReady;
 
-  List<WaitedQueueMessage> _waitedQueueMessages = [];
-
-  QueueExchangeService() {
-  }
-
-  Future<void> init(String queueName, ExchangeType exchangeType) async {
-    // AMQP host URL
-    String amqpUrl = "amqps://ubhptxwu:eh0iTQ0D22adEkSc9kyb2gB8hTZ_yVOt@armadillo.rmq.cloudamqp.com/ubhptxwu";
-
+  static ConnectionSettings getSettingFromUrl(String amqpUrl) {
+    SecurityContext context = SecurityContext.defaultContext;
     // Parse the URL
     Uri uri = Uri.parse(amqpUrl);
 
     // Create ConnectionSettings
     ConnectionSettings settings = ConnectionSettings(
       host: uri.host,
-      port: 5672,
+      port: 5671,
       virtualHost: uri.path.substring(1),
-      authProvider: PlainAuthenticator(uri.userInfo.split(":")[0], uri.userInfo.split(":")[1]),
+      authProvider: PlainAuthenticator(
+          uri.userInfo.split(":")[0], uri.userInfo.split(":")[1]),
+      tlsContext: context,
       // You can set other properties like maxConnectionAttempts, reconnectWaitTime, etc.
     );
+
+    return settings;
+  }
+
+  ConnectionSettings getSetting(){
+    String amqpUrl = resources.QUEUE_HOST;
+    return getSettingFromUrl(amqpUrl);
+  }
+
+  Future<void> init() async {
+    // AMQP host URL
+    String amqpUrl = "";
+
+    // Parse the URL
+    Uri uri = Uri.parse(amqpUrl);
+
+    // Create ConnectionSettings
+    ConnectionSettings settings = getSetting();
     client = Client(settings: settings);
     channel = await client?.channel();
-    exchange = await channel?.exchange(queueName, exchangeType);
+
+  }
+
+  @protected
+  void onReady() {
     _isReady = true;
-
-    Logger.log('QueueExchangeService ready');
-
-    String? defaultRoutingKey;
-
-    if(exchangeType != ExchangeType.FANOUT && exchangeType != ExchangeType.HEADERS
-    && _waitedQueueMessages.isNotEmpty) {
-      defaultRoutingKey = exchange!.name;
-    }
-    if(_waitedQueueMessages.isNotEmpty) {
-      for (var element in _waitedQueueMessages) {
-        exchange?.publish(element.message, element.routingKey ?? defaultRoutingKey);
-      }
-      _waitedQueueMessages.clear();
-    }
   }
 
-  void publish(String message, {String? routingKey}) {
-    if(!_isReady) {
-      _waitedQueueMessages.add(WaitedQueueMessage(message, routingKey: routingKey));
-      return;
-    }
-    if (exchange!.type != ExchangeType.FANOUT &&
-        exchange!.type != ExchangeType.HEADERS &&
-        (routingKey == null || routingKey.isEmpty)) {
-      routingKey = exchange!.name;
-    }
-    exchange?.publish(message, routingKey);
-  }
-
-  void publishBinary(List<int> message, {String? routingKey}) {
-    if(!_isReady) {
-      _waitedQueueMessages.add(WaitedQueueMessage(message, routingKey: routingKey));
-      return;
-    }
-    if (exchange!.type != ExchangeType.FANOUT &&
-        exchange!.type != ExchangeType.HEADERS &&
-        (routingKey == null || routingKey.isEmpty)) {
-      routingKey = exchange!.name;
-    }
-    exchange?.publish(message, routingKey);
+  Future<void> close() async {
+    await channel?.close();
+    await client?.close();
   }
 
   void dispose() {
-    client?.close();
-    print('QueueExchangeService disposed');
+    close();
   }
 }
 
-// class QueueSubscriber {
-//   QueueExchangeService(
-//       {required this.queueName,
-//       required this.exchangeName,
-//       required this.routingKey}) {}
-//
-//   String host;
-//   String queueName;
-//
-//   void dispose() {
-//     print('QueueExchangeService disposed');
-//   }
-// }
+

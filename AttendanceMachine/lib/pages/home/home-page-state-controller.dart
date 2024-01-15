@@ -1,4 +1,10 @@
-import 'package:attendancemachine/services/attendance-log-service.dart';
+import 'dart:io';
+
+import 'package:attendancemachine/models/api-response.dart';
+import 'package:attendancemachine/models/attendance-machine.dart';
+import 'package:attendancemachine/services/attendance-machine-service.dart';
+import 'package:attendancemachine/services/attendance_log_queue_service.dart';
+import 'package:attendancemachine/services/attendance_result_queue_service.dart';
 import 'package:attendancemachine/services/queue_service.dart';
 import 'package:attendancemachine/utils/devices-info.dart';
 import 'package:attendancemachine/utils/logger.dart';
@@ -9,6 +15,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../models/attendance_result.dart';
 import 'home-page.dart';
 
 class HomePageStateController {
@@ -80,9 +87,13 @@ class HomePageStateController {
   //</editor-fold>
 
   HomePageState state;
-  QueueExchanger queueExchanger = QueueExchanger();
+  AttendanceLogQueueService logQueueService = AttendanceLogQueueService();
+  AttendanceResultQueueService resultQueueService = AttendanceResultQueueService();
+  bool isCaptureBtnEnabled = false;
+  bool isLogViewEnabled = false;
+  List<String> logs = [];
 
-  void initState(HomePageState state) {
+  void initState(HomePageState state) async {
     this.state = state;
 
     _flashModeControlRowAnimationController = AnimationController(
@@ -110,8 +121,42 @@ class HomePageStateController {
       curve: Curves.easeInCubic,
     );
 
-    queueExchanger.init("queue.machineLog", ExchangeType.DIRECT);
-    queueExchanger.publish("hello toi la linh");
+    startFrontCamera();
+
+    String deviceId = "658197a0e52ed43386469ea6";
+    String deviceCode = DevicesInfo.info.deviceId;
+
+    final result = await AttendanceMachineService.instance.addMachine(deviceCode);
+
+    if(result.status == ApiStatus.SUCCESS){
+      deviceId = result.data!.id;
+    }
+    else{
+      showInSnackBar("Đăng ký máy chấm công thất bại, vui lòng chạy lại ứng dụng.");
+      return;
+    }
+
+    resultQueueService.listen(deviceId, (AttendanceResult result) async {
+      String message = "Đã chấm công";
+      if (result.status != "success") {
+        message = "[${result.time}]: Chấm công thất bại! (status: ${result.status})";
+      }
+      else
+      {
+        message = "[${result.time}] ${result.name} (${result.employeeCode}): Đã chấm công.";
+      };
+      logs.add(message);
+      state.setState(() {});
+    }).then((value) => {
+      isLogViewEnabled = true,
+      state.setState(() {})
+    });
+
+    logQueueService.setup(deviceId).then((value) => {
+      isCaptureBtnEnabled = true,
+      state.setState(() {})
+    });
+
   }
 
   void dispose() {
@@ -119,7 +164,8 @@ class HomePageStateController {
     _exposureModeControlRowAnimationController.dispose();
     _focusModeControlRowAnimationController.dispose();
 
-    queueExchanger.dispose();
+    logQueueService.dispose();
+    resultQueueService.dispose();
   }
 
   Future<void> startFrontCamera() async {
@@ -261,6 +307,42 @@ class HomePageStateController {
         'Error: $code${message == null ? '' : '\nError Message: $message'}');
   }
 
+  Future<void> startVideoRecording() async {
+    final CameraController? cameraController = controller;
+
+    if (cameraController == null || !cameraController.value.isInitialized) {
+      showInSnackBar('Error: select a camera first.');
+      return;
+    }
+
+    if (cameraController.value.isRecordingVideo) {
+      // A recording is already started, do nothing.
+      return;
+    }
+
+    try {
+      await cameraController.startVideoRecording();
+    } on CameraException catch (e) {
+      _showCameraException(e);
+      return;
+    }
+  }
+
+  Future<XFile?> stopVideoRecording() async {
+    final CameraController? cameraController = controller;
+
+    if (cameraController == null || !cameraController.value.isRecordingVideo) {
+      return null;
+    }
+
+    try {
+      return cameraController.stopVideoRecording();
+    } on CameraException catch (e) {
+      _showCameraException(e);
+      return null;
+    }
+  }
+
   Future<XFile?> takePicture() async {
     final CameraController? cameraController = controller;
     if (cameraController == null || !cameraController.value.isInitialized) {
@@ -282,16 +364,39 @@ class HomePageStateController {
     }
   }
 
-  Future<void> takePhoto() async{
-    var imageFile = await takePicture();
-    var deviceId = DevicesInfo.info.deviceId;
-    var password = DevicesInfo.info.passwordManufactory;
-
-    if(imageFile != null){
-      await AttendanceLogService.instance.pushAttendanceLog(imageFile, deviceId, password);
+  Future<void> takeAttendance() async{
+    isCaptureBtnEnabled = false;
+    state.setState(() {});
+    await controller?.prepareForVideoRecording();
+    bool isComplete = true;
+    int failRetry = 5;
+    List<Uint8List> images = [];
+    for(int i = 0; i < 5; i++){
+      XFile? file = await takePicture();
+      if(file == null){
+        if(failRetry > 0) {
+          failRetry--;
+          continue;
+        }
+        else{
+          isComplete = false;
+          break;
+        }
+      }
+      final image = await File(file.path).readAsBytes();
+      images.add(image);
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
+    if (isComplete == false) {
+      final now = DateTime.now();
+      final time = "${now.day > 9 ? '' : '0'}${now.day}/${now.month > 9 ? '' : '0'}${now.month}/${now.year}"
+          "${now.hour > 9 ? '' : '0'}${now.hour}:${now.minute > 9 ? '' : '0'}${now.minute}:${now.second > 9 ? '' : '0'}${now.second}";
+      logs.add("[$time]: Chấm công thất bại! Làm ơn ghi hình lại.");
     }
     else{
-      showInSnackBar("Chấm công thất bại: Không thể chụp ảnh");
+      logQueueService.publish(images);
     }
+    isCaptureBtnEnabled = true;
+    state.setState(() {});
   }
 }
