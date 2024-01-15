@@ -1,10 +1,8 @@
 package com.example.demo.Configurations.RabbitMQ;
 
-import com.example.demo.DTO.AttendanceLog.AttendanceLogCreateDto;
 import com.example.demo.Services.AttendanceLogService;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
@@ -14,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
-public class RabbitMQListenerResultFromFaceDetect implements MessageListener {
+public class QueueResult implements MessageListener {
     private final AttendanceLogService attendanceLogService;
 //    private final SimpMessagingTemplate template;
 

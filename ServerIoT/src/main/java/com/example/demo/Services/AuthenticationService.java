@@ -67,6 +67,29 @@ public class AuthenticationService {
                 .build();
     }
 
+    public AuthenticationResponse authenticateAdmin(AuthenticateRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),
+                        request.getPassword()
+                )
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        var user = userAccountRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new AppException(404, "User not found"));
+        if(user.getRole() != Role.ADMIN) {
+            throw new AppException(403, "Not authorized");
+        }
+        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new AppException(409, "Invalid password");
+        }
+        var jwtToken = jwtService.generateToken(user);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .user(modelMapper.map(user, UserDto.class))
+                .build();
+    }
+
     public void ChangePassword(String username, String oldPassword, String newPassword) {
         var user = userAccountRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(404, "User not found"));

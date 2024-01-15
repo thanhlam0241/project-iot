@@ -10,10 +10,14 @@ import Header from './header';
 
 import Box from '@mui/material/Box';
 
+import useAuth from 'src/hooks/Auth/auth';
+
 // ----------------------------------------------------------------------
 
 export default function DashboardLayout({ children }) {
   const [openNav, setOpenNav] = useState(false);
+
+  const { auth, logout } = useAuth();
 
   return (
     <>
@@ -28,7 +32,7 @@ export default function DashboardLayout({ children }) {
       >
         <Nav openNav={openNav} onCloseNav={() => setOpenNav(false)} />
 
-        <Main>{children}</Main>
+        <Main>{auth.username && children}</Main>
       </Box>
     </>
   );
