@@ -1,6 +1,7 @@
 package com.example.demo.Configurations.RabbitMQ;
 
 import com.example.demo.Services.AttendanceLogService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
@@ -9,6 +10,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
 import org.springframework.context.annotation.Bean;
@@ -19,13 +21,13 @@ import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 @Configuration
 public class RabbitMQConfig {
     @Value("${rabbitmq.queue.queue-machine}")
-    String nameQueueReceiveLogFromMachine;
-
-    @Value("${rabbitmq.queue.queue-detect}")
-    String nameQueueSendDataToFaceDetect;
-
-    @Value("${rabbitmq.queue.queue-face}")
-    String nameQueueResultDetect;
+    String nameQueueMachine;
+    @Value("${rabbitmq.queue.queue-register-face}")
+    String nameQueueRegisterFace;
+    @Value("${rabbitmq.queue.queue-output-face}")
+    String nameQueueOutputFace;
+    @Value("${rabbitmq.queue.queue-input-face}")
+    String nameQueueInputFace;
 
     @Value("${rabbitmq.exchange.direct}")
     String exchange;
@@ -33,11 +35,15 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.routing-key.key-machine}")
     private String routingKeyMachine;
 
-    @Value("${rabbitmq.routing-key.key-detect}")
-    private String routingKeyDetect;
+    @Value("${rabbitmq.routing-key.key-input-face}")
+    private String routingKeyInputFace;
 
-    @Value("${rabbitmq.routing-key.key-result}")
-    private String routingKeyFace;
+    @Value("${rabbitmq.routing-key.key-register-face}")
+    private String routingKeyRegisterFace;
+
+    @Value("${rabbitmq.routing-key.key-output-face}")
+    private String routingKeyOutputFace;
+
 
     @Value("${rabbitmq.username}")
     String username;
@@ -58,19 +64,20 @@ public class RabbitMQConfig {
     private ModelMapper modelMapper;
 
     @Bean
-    Queue queueResult() {
-        return new Queue(nameQueueResultDetect, false);
-    }
-
-    @Bean
     Queue queueMachine(){
-        return new Queue(nameQueueReceiveLogFromMachine, false);
+        return new Queue(nameQueueMachine, false);
+    }
+    @Bean
+    Queue queueRegisterFace(){return new Queue(nameQueueRegisterFace, false);}
+    @Bean
+    Queue queueInput(){
+        return new Queue(nameQueueInputFace, false);
+    }
+    @Bean
+    Queue queueOutput(){
+        return new Queue(nameQueueOutputFace, false);
     }
 
-    @Bean
-    Queue queueFaceDetect(){
-        return new Queue(nameQueueSendDataToFaceDetect, false);
-    }
 
     @Bean
     DirectExchange exchange() {
@@ -78,16 +85,20 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    Binding machineBinding(Queue queueMachine, DirectExchange exchange) {
+    Binding machineBinding(@Qualifier("queueMachine") Queue queueMachine, DirectExchange exchange) {
         return BindingBuilder.bind(queueMachine).to(exchange).with(routingKeyMachine);
     }
     @Bean
-    Binding faceBinding(Queue queueResult, DirectExchange exchange) {
-        return BindingBuilder.bind(queueResult).to(exchange).with(routingKeyFace);
+    Binding faceInputBinding(@Qualifier("queueInput") Queue queueInput, DirectExchange exchange) {
+        return BindingBuilder.bind(queueInput).to(exchange).with(routingKeyInputFace);
     }
     @Bean
-    Binding detectBinding(Queue queueFaceDetect, DirectExchange exchange) {
-        return BindingBuilder.bind(queueFaceDetect).to(exchange).with(routingKeyDetect);
+    Binding faceOutputBinding(@Qualifier("queueOutput") Queue queueOutput, DirectExchange exchange) {
+        return BindingBuilder.bind(queueOutput).to(exchange).with(routingKeyOutputFace);
+    }
+    @Bean
+    Binding registerFaceBinding(@Qualifier("queueRegisterFace") Queue queueRegister, DirectExchange exchange) {
+        return BindingBuilder.bind(queueRegister).to(exchange).with(routingKeyRegisterFace);
     }
 
 //    @Bean
@@ -114,13 +125,13 @@ public class RabbitMQConfig {
     }
 
     //create MessageListenerContainer using default connection factory
-    @Bean
-    MessageListenerContainer messageListenerContainer(ConnectionFactory connectionFactory ) {
-        SimpleMessageListenerContainer simpleMessageListenerContainer = new SimpleMessageListenerContainer();
-        simpleMessageListenerContainer.setConnectionFactory(connectionFactory);
-        simpleMessageListenerContainer.setQueues(queueResult());
-        simpleMessageListenerContainer.setMessageListener(rabbitMQListener);
-        return simpleMessageListenerContainer;
-    }
+//    @Bean
+//    MessageListenerContainer messageListenerContainer(ConnectionFactory connectionFactory ) {
+//        SimpleMessageListenerContainer simpleMessageListenerContainer = new SimpleMessageListenerContainer();
+//        simpleMessageListenerContainer.setConnectionFactory(connectionFactory);
+//        simpleMessageListenerContainer.setQueues(queueResult());
+//        simpleMessageListenerContainer.setMessageListener(rabbitMQListener);
+//        return simpleMessageListenerContainer;
+//    }
 
 }

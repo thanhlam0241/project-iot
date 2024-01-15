@@ -1,6 +1,7 @@
 /* eslint-disable */
 import React, { useState, useEffect, useRef } from 'react';
 const SOCKET_URL = 'https://server-iot-tggk.onrender.com/ws';
+// const SOCKET_URL = 'http://localhost:8080/ws';
 
 import axios from 'src/api/axios'
 import { over } from 'stompjs';
@@ -14,16 +15,32 @@ import sendPostRequest from 'src/utils/generateData.js';
 function Socket() {
     const [message, setMessage] = useState('You server message here.');
 
+    // const websocket = new WebSocket("wss://server-iot-tggk.onrender.com/ws")
+
     // const [users, setUsers] = useState([]);
     // const [listMachines, setListMachines] = useState([]);
 
-    const [day, setDay] = useState(16);
-    const [month, setMonth] = useState(12);
-    const [year, setYear] = useState(2023);
-    const [shift, setShift] = useState('morning');
-    const [count, setCount] = useState(0);
+    // const [day, setDay] = useState(16);
+    // const [month, setMonth] = useState(12);
+    // const [year, setYear] = useState(2023);
+    // const [shift, setShift] = useState('morning');
+    // const [count, setCount] = useState(0);
 
     const stompClient = useRef(null);
+
+    // useEffect(() => {
+    //     if (websocket) {
+    //         websocket.onopen = () => {
+    //             console.log('connected')
+    //         }
+    //         websocket.onmessage = (e) => {
+    //             console.log(e)
+    //         }
+    //         websocket.onclose = () => {
+    //             console.log('disconnected')
+    //         }
+    //     }
+    // }, [websocket])
 
     useEffect(() => {
         connect();
@@ -63,13 +80,13 @@ function Socket() {
     }
 
     const onConnected = () => {
-        stompClient.current.subscribe('/topic/message', onMessageReceived);
+        stompClient.current.subscribe('/topic/message/658173e25b383800bb417e2f', onMessageReceived);
     }
 
     const onMessageReceived = (payload) => {
         var payloadData = JSON.parse(payload.body);
         console.log(payloadData)
-        setMessage(payloadData.name);
+        setMessage(payloadData.msg);
     }
 
     // const increase = () => {
@@ -104,6 +121,8 @@ function Socket() {
             name: 'Hello World'
         };
         stompClient.current.send("/app/sendMessage", {}, JSON.stringify(chatMessage));
+        // console.log(websocket)
+        // websocket.send("Hello World")
     }
 
     const onError = (err) => {
@@ -125,7 +144,7 @@ function Socket() {
             <h1>
                 {message}
             </h1>
-            <Button onClick={connect}>Connect</Button>
+            {/* <Button onClick={connect}>Connect</Button> */}
             <Button onClick={sendMessage}>Send message</Button>
             {/* <Button onClick={() => setIsInterval(true)}>Send message</Button> */}
         </div>

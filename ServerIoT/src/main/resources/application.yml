@@ -1,5 +1,8 @@
 ##Local MongoDB config
 spring:
+  spring:
+    main:
+      allow-bean-definition-overriding: true
   mvc:
     static-path-pattern: /static/**
   data:
@@ -22,6 +25,15 @@ spring:
 #      max-request-size=215MB
       ## File Storage Properties
       # All files uploaded through the REST API will be stored in this directory
+  cache:
+    type: redis
+  redis:
+    database: 0
+    host: redis-19363.c321.us-east-1-2.ec2.cloud.redislabs.com
+    port: 19363
+    username: thanhlam02412002
+    password: Hoatuyet_0241
+    timeout: 60000
 
 application:
   security:
@@ -42,19 +54,19 @@ rabbitmq:
   username: ubhptxwu
   password: eh0iTQ0D22adEkSc9kyb2gB8hTZ_yVOt
   queue:
-    queue-face: "queue.resultFace"
     queue-machine: "queue.machineLog"
-    queue-detect: "queue.dataFace"
-    queue-machine-result: "queue.machineLog"
+    queue-input-face: "queue.model.input"
+    queue-register-face: "queue.model.register"
+    queue-output-face: "exchange.model.output"
   exchange:
     direct: "direct-exchange"
     fanout: "fanout-exchange"
     header: "header-exchange"
   routing-key:
-    key-result: queue-result
+    key-input-face: queue-input-face
     key-machine: queue-machine
-    key-detect: queue-detect
-
+    key-register-face: queue-register-face
+    key-output-face: queue-output-face
 logging:
   level:
     org:

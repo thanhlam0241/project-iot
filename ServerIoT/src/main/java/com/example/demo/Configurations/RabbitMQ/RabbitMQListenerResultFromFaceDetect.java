@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class RabbitMQListenerResultFromFaceDetect implements MessageListener {
     private final AttendanceLogService attendanceLogService;
-    private final SimpMessagingTemplate template;
+//    private final SimpMessagingTemplate template;
 
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     @Override
@@ -57,11 +57,13 @@ public class RabbitMQListenerResultFromFaceDetect implements MessageListener {
             String attendanceMachineId = jsonObject.getString("attendanceMachineId");
 
             // Insert data to database
-            AttendanceLogCreateDto dto = new AttendanceLogCreateDto(time, attendanceMachineId, userId);
-            var attendanceLog =attendanceLogService.insertAttendanceLog(dto);
+
+//            AttendanceLogCreateDto dto = new AttendanceLogCreateDto(time, "", attendanceMachineId, userId);
+//            var attendanceLog =attendanceLogService.insertAttendanceLog(dto);
+
 
             // Send data to topic websocket
-            template.convertAndSend("/topic/new-attendance-log", attendanceLog);
+//            template.convertAndSend("/topic/new-attendance-log", attendanceLog);
 
         } catch (Exception e) {
             System.out.println("Error Consuming Message - " + e.getMessage());
