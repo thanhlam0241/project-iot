@@ -138,12 +138,21 @@ class HomePageStateController {
 
     resultQueueService.listen(deviceId, (AttendanceResult result) async {
       String message = "Đã chấm công";
-      if (result.status != "success") {
-        message = "[${result.time}]: Chấm công thất bại! (status: ${result.status})";
+      if (result.status == "success") {
+        message = "[${result.time}] ${result.name} (${result.employeeCode}): Chấm công thành công.";
+      }
+      else if(result.status == "late"){
+        message = "[${result.time}] ${result.name} (${result.employeeCode}): Muộn.";
+      }
+      else if(result.status == "abnormal"){
+        message = "[${result.time}] ${result.name} (${result.employeeCode}): Bất thường.";
+      }
+      else if(result.status == "duplicate"){
+        message = "[${result.time}] ${result.name} (${result.employeeCode}): Đã chấm công.";
       }
       else
       {
-        message = "[${result.time}] ${result.name} (${result.employeeCode}): Đã chấm công.";
+        message = "[${result.time}]: Chấm công thất bại! (status: ${result.status})";
       };
       logs.add(message);
       state.setState(() {});

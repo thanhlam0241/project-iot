@@ -13,30 +13,17 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
-    @Value("${rabbitmq.queue.queue-machine}")
-    String nameQueueMachine;
-    @Value("${rabbitmq.queue.queue-register-face}")
-    String nameQueueRegisterFace;
+    @Value("${rabbitmq.queue.queue-machine-log}")
+    String nameQueueMachineLog;
+    @Value("${rabbitmq.queue.exchange-machine-result}")
+    String nameExchangeMachineResult;
     @Value("${rabbitmq.queue.queue-output-face}")
-    String nameQueueOutputFace;
+    String nameQueueFaceOutput;
     @Value("${rabbitmq.queue.queue-input-face}")
-    String nameQueueInputFace;
+    String nameQueueFaceInput;
 
     @Value("${rabbitmq.exchange.direct}")
-    String exchange;
-
-    @Value("${rabbitmq.routing-key.key-machine}")
-    private String routingKeyMachine;
-
-    @Value("${rabbitmq.routing-key.key-input-face}")
-    private String routingKeyInputFace;
-
-    @Value("${rabbitmq.routing-key.key-register-face}")
-    private String routingKeyRegisterFace;
-
-    @Value("${rabbitmq.routing-key.key-output-face}")
-    private String routingKeyOutputFace;
-
+    String exchangeTypeDirect;
 
     @Value("${rabbitmq.username}")
     String username;
@@ -54,41 +41,21 @@ public class RabbitMQConfig {
     private ModelMapper modelMapper;
 
     @Bean
-    Queue queueMachine(){
-        return new Queue(nameQueueMachine, false);
+    Queue queueMachineLog(){
+        return new Queue(nameQueueMachineLog, false);
     }
     @Bean
-    Queue queueRegisterFace(){return new Queue(nameQueueRegisterFace, false);}
-    @Bean
-    Queue queueInput(){
-        return new Queue(nameQueueInputFace, false);
-    }
-    @Bean
-    Queue queueOutput(){
-        return new Queue(nameQueueOutputFace, false);
-    }
-
-
-    @Bean
-    DirectExchange exchange() {
-        return new DirectExchange(exchange);
+    Exchange exchangeMachineResult(){
+        return ExchangeBuilder.directExchange(nameExchangeMachineResult).durable(false).build();
     }
 
     @Bean
-    Binding machineBinding(@Qualifier("queueMachine") Queue queueMachine, DirectExchange exchange) {
-        return BindingBuilder.bind(queueMachine).to(exchange).with(routingKeyMachine);
+    Queue queueFaceInput(){
+        return new Queue(nameQueueFaceInput, false);
     }
     @Bean
-    Binding faceInputBinding(@Qualifier("queueInput") Queue queueInput, DirectExchange exchange) {
-        return BindingBuilder.bind(queueInput).to(exchange).with(routingKeyInputFace);
-    }
-    @Bean
-    Binding faceOutputBinding(@Qualifier("queueOutput") Queue queueOutput, DirectExchange exchange) {
-        return BindingBuilder.bind(queueOutput).to(exchange).with(routingKeyOutputFace);
-    }
-    @Bean
-    Binding registerFaceBinding(@Qualifier("queueRegisterFace") Queue queueRegister, DirectExchange exchange) {
-        return BindingBuilder.bind(queueRegister).to(exchange).with(routingKeyRegisterFace);
+    Queue queueFaceOutput(){
+        return new Queue(nameQueueFaceOutput, false);
     }
 
     @Bean
