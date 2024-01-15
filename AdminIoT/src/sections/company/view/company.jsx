@@ -71,7 +71,7 @@ export default function VerticalTabs() {
                 <Tab label="Đơn vị/phòng ban" {...a11yProps(1)} />
                 <Tab label="Nhân viên" {...a11yProps(2)} />
                 <Tab label="Quản lý" {...a11yProps(3)} />
-                <Tab label="Socket" {...a11yProps(4)} />
+                {/* <Tab label="Socket" {...a11yProps(4)} /> */}
             </Tabs>
             <TabPanel value={value} index={0}>
                 <CompanyInformation />
@@ -85,9 +85,9 @@ export default function VerticalTabs() {
             <TabPanel value={value} index={3}>
                 <Manager />
             </TabPanel>
-            <TabPanel value={value} index={4}>
+            {/* <TabPanel value={value} index={4}>
                 <Socket />
-            </TabPanel>
+            </TabPanel> */}
         </Box>
     );
 }

@@ -131,4 +131,11 @@ public class UserService {
         user.setIdentityCard(userDto.getIdentityCard());
         userRepository.save(user);
     }
+
+    public UserDto getUserByUsernameAndRole(String username, Role role){
+        var user = userRepository.findByUsernameAndRole(username, role.toString())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        return modelMapper.map(user, UserDto.class);
+    }
+
 }

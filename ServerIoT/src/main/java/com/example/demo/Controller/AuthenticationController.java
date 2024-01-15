@@ -28,6 +28,11 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }
 
+    @PostMapping("/authenticate-admin")
+    public ResponseEntity<AuthenticationResponse> loginAdmin(@RequestBody AuthenticateRequest request) {
+        return ResponseEntity.ok(authenticationService.authenticateAdmin(request));
+    }
+
     @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         authenticationService.ChangePassword(request.getUsername(), request.getOldPassword(), request.getNewPassword());

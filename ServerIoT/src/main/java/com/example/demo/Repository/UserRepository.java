@@ -19,4 +19,6 @@ public interface UserRepository extends BaseRepository<User,String> {
     boolean existsByUsername(String username);
 
     boolean existsById(String id);
+
+    Optional<User> findByUsernameAndRole(String username, String role);
 }

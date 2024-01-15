@@ -2,12 +2,12 @@
 
 import axios from 'axios'
 
-const baseUrl = 'https://server-iot-tggk.onrender.com/api/v1'
-// const baseUrl = 'https://server-iot-tggk.onrender.com//api/v1'
+// const baseUrl = 'http://localhost:8080/api/v1'
+const baseUrl = 'https://server-iot-tggk.onrender.com//api/v1'
 
 const instance = axios.create({
     baseURL: baseUrl,
-    timeout: 20000,
+    timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',

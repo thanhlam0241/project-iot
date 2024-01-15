@@ -25,7 +25,7 @@ public class QueueMachineListener {
     private AmqpTemplate rabbitTemplate;
 
     @Autowired
-    private RedisTemplate<String, String> template;
+    private RedisTemplate<String, String> redisTemplate;
 
     @Value("${rabbitmq.exchange.direct}")
     private String exchange;
@@ -55,7 +55,7 @@ public class QueueMachineListener {
         data = ArrayUtils.addAll(data, dataVideo);
 
         // Send message to face detect system, save request to redis
-        template.opsForValue().set(RedisResource.STRING_KEY_PREFIX_REQUEST + uuid, "Waiting for result from face detect system");
+        redisTemplate.opsForValue().set(RedisResource.STRING_KEY_PREFIX_REQUEST + uuid, "Waiting for result from face detect system");
         rabbitTemplate.convertAndSend(exchange, routingKey, data);
 
 //        String stringMessage = new String(body);
