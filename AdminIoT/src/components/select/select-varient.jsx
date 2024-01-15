@@ -5,8 +5,8 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
-export default function SelectVariants({ options, onChange, required, label, ...props }) {
-    const [value, setValue] = React.useState(required ? options[0].value : '');
+export default function SelectVariants({ options, onChange, required, value, label, ...props }) {
+    const [v, setValue] = React.useState(value ? value : required ? options[0].value : '');
 
     const handleChange = (event) => {
         setValue(event.target.value);
@@ -19,7 +19,7 @@ export default function SelectVariants({ options, onChange, required, label, ...
             <Select
                 labelId="demo-simple-select-standard-label"
                 id="demo-simple-select-standard"
-                value={value}
+                value={v}
                 onChange={handleChange}
                 label={label}
             >
