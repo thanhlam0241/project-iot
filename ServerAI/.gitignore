@@ -1,0 +1,4 @@
+*__pycache__
+
+facenet_pytorch/examples/
+facenet_pytorch/data/
