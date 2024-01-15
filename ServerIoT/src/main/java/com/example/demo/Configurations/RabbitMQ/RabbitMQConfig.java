@@ -51,9 +51,6 @@ public class RabbitMQConfig {
     private AttendanceLogService attendanceLogService;
 
     @Autowired
-    private QueueResult rabbitMQListener;
-
-    @Autowired
     private ModelMapper modelMapper;
 
     @Bean
@@ -94,20 +91,6 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(queueRegister).to(exchange).with(routingKeyRegisterFace);
     }
 
-//    @Bean
-//    public MessageConverter jsonMessageConverter() {
-//        return new Jackson2JsonMessageConverter();
-//    }
-
-
-//    @Bean
-//    public AmqpTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-//        final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-//        rabbitTemplate.setMessageConverter(jsonMessageConverter());
-//        return rabbitTemplate;
-//    }
-
-
     @Bean
     public CachingConnectionFactory rabbitConnectionFactory(RabbitProperties config)
             throws Exception {
@@ -116,15 +99,4 @@ public class RabbitMQConfig {
                 .setUri(host);
         return connectionFactory;
     }
-
-    //create MessageListenerContainer using default connection factory
-//    @Bean
-//    MessageListenerContainer messageListenerContainer(ConnectionFactory connectionFactory ) {
-//        SimpleMessageListenerContainer simpleMessageListenerContainer = new SimpleMessageListenerContainer();
-//        simpleMessageListenerContainer.setConnectionFactory(connectionFactory);
-//        simpleMessageListenerContainer.setQueues(queueResult());
-//        simpleMessageListenerContainer.setMessageListener(rabbitMQListener);
-//        return simpleMessageListenerContainer;
-//    }
-
 }
