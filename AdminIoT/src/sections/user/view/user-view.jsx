@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { users } from 'src/_mock/user';
+// import { users } from 'src/_mock/user';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -26,7 +26,10 @@ import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
+
 import { useSnackbar } from 'notistack';
+import { Backdrop } from 'src/components/backdrop';
+import userApi from 'src/api/userApi';
 
 // ----------------------------------------------------------------------
 
@@ -34,6 +37,8 @@ export default function UserPage() {
   const { enqueueSnackbar } = useSnackbar();
 
   const [page, setPage] = useState(0);
+
+  const [users, setUsers] = useState([]);
 
   const [order, setOrder] = useState('asc');
 
@@ -48,6 +53,33 @@ export default function UserPage() {
   const [openFilter, setOpenFilter] = useState(false);
 
   const [openForm, setOpenForm] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await userApi.getAll();
+      setUsers(response.data.map((user) => {
+        return {
+          id: user.id,
+          name: user.fullName,
+          username: user.username,
+          role: user.role,
+          status: user.active ? 'active' : 'banned',
+        }
+      }));
+      console.log(response);
+    } catch (error) {
+      console.log('Failed to fetch employee: ', error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const handleOpenForm = () => {
     enqueueSnackbar("Open form", { variant: 'success' })
@@ -126,6 +158,7 @@ export default function UserPage() {
 
   return (
     <Container >
+      <Backdrop open={loading} />
       <UserForm open={openForm} handleClose={handleCloseForm} />
       <TableFilter openFilter={openFilter} onOpenFilter={handleOpenFilter} onCloseFilter={handleCloseFilter} />
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
@@ -156,6 +189,7 @@ export default function UserPage() {
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
                   { id: 'name', label: 'Tên' },
+                  { id: 'username', label: 'Tên đăng nhập' },
                   { id: 'role', label: 'Vai trò' },
                   { id: 'status', label: 'Trạng thái' },
                   { id: '' },
@@ -170,7 +204,7 @@ export default function UserPage() {
                       name={row.name}
                       role={row.role}
                       status={row.status}
-                      avatarUrl={row.avatarUrl}
+                      username={row.username}
                       isVerified={row.isVerified}
                       selected={selected.indexOf(row.name) !== -1}
                       handleClick={(event) => handleClick(event, row.name)}

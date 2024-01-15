@@ -19,7 +19,7 @@ import Iconify from 'src/components/iconify';
 export default function UserTableRow({
   selected,
   name,
-  company,
+  username,
   role,
   status,
   handleClick,
@@ -49,7 +49,7 @@ export default function UserTableRow({
             </Typography>
           </Stack>
         </TableCell>
-
+        <TableCell>{username}</TableCell>
         <TableCell>{role}</TableCell>
 
         <TableCell>
@@ -97,7 +97,7 @@ export default function UserTableRow({
 }
 
 UserTableRow.propTypes = {
-  company: PropTypes.any,
+  username: PropTypes.any,
   handleClick: PropTypes.func,
   name: PropTypes.any,
   role: PropTypes.any,
