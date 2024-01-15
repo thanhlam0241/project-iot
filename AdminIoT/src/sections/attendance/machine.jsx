@@ -25,7 +25,7 @@ import { Backdrop } from 'src/components/backdrop';
 const columns = [
     { id: 'code', label: 'Mã máy', minWidth: 100 },
     { id: 'name', label: 'Tên máy', minWidth: 100 },
-    { id: 'managementUnit', label: 'Phòng ban', minWidth: 100 },
+    { id: 'managementUnitName', label: 'Phòng ban', minWidth: 100 },
     // {
     //     id: 'population',
     //     label: 'Population',
@@ -52,20 +52,6 @@ const columns = [
 function createData(code, name, managementUnit) {
     return { code, name, managementUnit };
 }
-
-const rows = [
-    createData('MCC001', 'Máy chấm công 1', 'Phòng nhân sự'),
-    createData('MCC002', 'Máy chấm công 2', 'Phòng nhân sự'),
-    createData('MCC003', 'Máy chấm công 3', 'Phòng nhân sự'),
-    createData('MCC004', 'Máy chấm công 4', 'Phòng nhân sự'),
-    createData('MCC005', 'Máy chấm công 5', 'Phòng nhân sự'),
-    createData('MCC006', 'Máy chấm công 6', 'Phòng nhân sự'),
-    createData('MCC007', 'Máy chấm công 7', 'Phòng nhân sự'),
-    createData('MCC008', 'Máy chấm công 8', 'Phòng nhân sự'),
-    createData('MCC009', 'Máy chấm công 9', 'Phòng kế toán'),
-    createData('MCC010', 'Máy chấm công 10', 'Phòng kế toán'),
-    createData('MCC011', 'Máy chấm công 11', 'Phòng kế toán'),
-];
 
 export default function StickyHeadTable() {
     const [page, setPage] = React.useState(0);
@@ -99,8 +85,7 @@ export default function StickyHeadTable() {
             setMachines(response.data.map((machine, index) => {
                 return {
                     ...machine,
-                    stt: index + 1,
-                    managementUnit: machine.managementUnit.name
+                    stt: index + 1
                 }
             }));
         } catch (error) {
