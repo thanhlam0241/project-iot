@@ -73,14 +73,14 @@ export default function StickyHeadTable() {
             type: 'ADD',
             data: null
         });
-
         fetchMachines();
         fetchManagementUnits();
     }
 
     const fetchMachines = async () => {
         try {
-            const response = await machineApi.getAll();
+            setLoading(true);
+            const response = await machineApi.getAll().finally(() => setLoading(false));
             console.log(response);
             setMachines(response.data.map((machine, index) => {
                 return {

@@ -25,9 +25,9 @@ const columns = [
     { id: 'numberOfShifts', label: 'Số ca làm việc', minWidth: 100 },
     { id: 'numberMorningShift', label: 'Số ca sáng', minWidth: 100 },
     { id: 'numberAfternoonShift', label: 'Số ca chiều', minWidth: 100 },
-    { id: 'numberOfLateShifts', label: 'Số ca đi muộn', minWidth: 100 },
+    // { id: 'numberOfLateShifts', label: 'Số ca đi muộn', minWidth: 100 },
     { id: 'numberOfLateHours', label: 'Số giờ đi muộn', minWidth: 100 },
-    { id: 'numberOfAbsentShifts', label: 'Số ca nghỉ', minWidth: 100 },
+    // { id: 'numberOfAbsentShifts', label: 'Số ca nghỉ', minWidth: 100 },
     // {
     //     id: 'density',
     //     label: 'Density',
