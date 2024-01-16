@@ -85,11 +85,10 @@ public class QueueFaceResultListener {
                 break;
         }
 
-
-
     }
 
     void handleIdentify(FaceIdResult faceIdResult, ObjectMapper objectMapper, String deviceId, LocalDateTime datetime) throws IOException {
+        LOGGER.info(String.format("Identify from device id: %s", deviceId));
         AttendanceResult attendanceResult = new AttendanceResult();
         attendanceResult.setDeviceId(deviceId);
         attendanceResult.setTime(datetime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
@@ -201,7 +200,26 @@ public class QueueFaceResultListener {
         wsTemplate.convertAndSend(channel, new Notification("Bạn đã chấm công thành công"));
     }
     void handleRegister(FaceIdResult faceIdResult, ObjectMapper objectMapper, String userId){
+        LOGGER.info(String.format("Register for user id: %s", userId));
+        if(faceIdResult.getLabel() == null || faceIdResult.getLabel().equals("null")
+                || faceIdResult.getLabel().equals("None")
+                || faceIdResult.getLabel().isEmpty() || faceIdResult.getLabel().isBlank()){
+            System.out.println(faceIdResult.getLabel() + ": face is unidentified");
+            userRepository.findById(userId).ifPresent(user -> userRepository.delete(user));
+            wsTemplate.convertAndSend("/topic/register",
+                    new Notification("[FAIL] Đăng ký thất bại! Không nhận diện được khuôn mặt."));
+            return;
+        }
+//        var user = userRepository.findById(userId).orElse(null);
+//        if (user == null) {
+//            System.out.println(userId + ": user is null");
+//            wsTemplate.convertAndSend("/topic/register", new Notification("[FAIL] Đăng ký thất bại! Không thể thêm thông tin người dùng vào CSDL."));
+//            return;
+//        }
 
+        // Thông báo nhận diện khuôn mặt thành công
+        System.out.println(faceIdResult.getLabel() + ": SUCCESS");
+        wsTemplate.convertAndSend("/topic/register", new Notification("[SUCCESS] Đăng ký thành công!"));
     }
 }
 
