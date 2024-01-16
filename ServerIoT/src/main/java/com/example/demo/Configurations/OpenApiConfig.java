@@ -34,6 +34,10 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 @Server(
                         description = "PRODUCTION ENV",
                         url = "https://server-iot-tggk.onrender.com"
+                ),
+                @Server(
+                        description = "GOOGLE_CLOUD",
+                        url = "https://iot-v1-ehbc6vitva-as.a.run.app"
                 )
         },
         security = {

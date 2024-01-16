@@ -46,7 +46,12 @@ const useAuthProvider = () => {
         }
     }
     const logout = async () => {
-        setAuth(null)
+        setAuth({
+            username: '',
+            fullname: '',
+            role: 'ADMIN',
+            avatar: avatar.ADMIN
+        })
     }
     return {
         login,
