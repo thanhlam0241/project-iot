@@ -3,7 +3,7 @@
 import axios from 'axios'
 
 // const baseUrl = 'http://localhost:8080/api/v1'
-const baseUrl = 'https://server-iot-tggk.onrender.com//api/v1'
+const baseUrl = 'https://server-iot-tggk.onrender.com/api/v1'
 
 const instance = axios.create({
     baseURL: baseUrl,

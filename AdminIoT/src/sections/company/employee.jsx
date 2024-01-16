@@ -14,23 +14,20 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 
 import Iconify from 'src/components/iconify';
-
+import userApi from 'src/api/userApi';
 import EmployeeForm from './employee-form';
+import { useSnackbar } from 'notistack';
+import { Backdrop } from 'src/components/backdrop';
+
+import RegisterForm from './register/register-form'
 
 const columns = [
     { id: 'stt', label: 'STT', minWidth: 100 },
     { id: 'code', label: 'Mã NV', minWidth: 100 },
-    { id: 'name', label: 'Tên NV', minWidth: 100 },
+    { id: 'fullName', label: 'Tên NV', minWidth: 100 },
     { id: 'managementUnit', label: 'Phòng ban', minWidth: 100 },
     { id: 'phone', label: 'Số điện thoại', minWidth: 100 },
     { id: 'address', label: 'Địa chỉ', minWidth: 100 },
-    // {
-    //     id: 'density',
-    //     label: 'Density',
-    //     minWidth: 170,
-    //     align: 'right',
-    //     format: (value) => value.toFixed(2),
-    // },
 ];
 
 function createData(stt, code, name, managementUnit, phone, address) {
@@ -71,7 +68,39 @@ export default function StickyHeadTable() {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
+    const [loading, setLoading] = React.useState(false);
+
+    const { enqueueSnackbar } = useSnackbar();
+
+    const [employees, setEmployees] = React.useState([]);
+
     const [openForm, setOpenForm] = React.useState(false);
+
+    const [openRegisterForm, setOpenRegisterForm] = React.useState(false);
+
+    React.useEffect(() => {
+        fetchEmployees();
+    }, []);
+
+    const fetchEmployees = async () => {
+        try {
+            setLoading(true);
+            const response = await userApi.getAllEmployee();
+            setEmployees(response.data.map((employee, index) => {
+                console.log(employee.managementUnit)
+                return {
+                    ...employee,
+                    stt: index + 1,
+                    managementUnit: employee.managementUnit ? employee.managementUnit.name : ''
+                }
+            }));
+            console.log(response);
+        } catch (error) {
+            console.log('Failed to fetch employee: ', error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const handleOpenForm = () => {
         setOpenForm(true);
@@ -80,6 +109,14 @@ export default function StickyHeadTable() {
     const handleCloseForm = () => {
         setOpenForm(false);
     };
+
+    const handleOpenRegisterForm = () => {
+        setOpenRegisterForm(true);
+    };
+
+    const handleCloseRegisterForm = () => {
+        setOpenRegisterForm(false);
+    }
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -93,10 +130,12 @@ export default function StickyHeadTable() {
     return (
         <Paper sx={{ width: '100%', overflow: 'auto' }}>
             <EmployeeForm open={openForm} handleClose={handleCloseForm} />
+            <RegisterForm open={openRegisterForm} handleClose={handleCloseRegisterForm} />
+            <Backdrop open={loading} />
             <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-                <Typography variant="h4">Danh sách đơn vị/phòng ban</Typography>
+                <Typography variant="h4">Danh sách nhân viên</Typography>
 
-                <Button onClick={handleOpenForm} variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
+                <Button onClick={handleOpenRegisterForm} variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
                     Tạo mới
                 </Button>
             </Stack>
@@ -117,7 +156,7 @@ export default function StickyHeadTable() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows
+                        {employees.length > 0 && employees
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((row) => {
                                 return (
@@ -136,9 +175,9 @@ export default function StickyHeadTable() {
                                             <Button sx={{ marginRight: 2 }} variant="contained" color="inherit" startIcon={<Iconify icon="eva:edit-2-fill" />}>
                                                 Sửa
                                             </Button>
-                                            <Button variant="contained" color="error" startIcon={<Iconify icon="eva:trash-fill" />}>
+                                            {/* <Button onClick={() => deleteEmployee(row.id)} variant="contained" color="error" startIcon={<Iconify icon="eva:trash-fill" />}>
                                                 Xóa
-                                            </Button>
+                                            </Button> */}
                                         </TableCell>
                                     </TableRow>
                                 );
@@ -149,7 +188,7 @@ export default function StickyHeadTable() {
             <TablePagination
                 rowsPerPageOptions={[5, 20, 100]}
                 component="div"
-                count={rows.length}
+                count={employees.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
