@@ -20,6 +20,11 @@ import { useSnackbar } from 'notistack';
 import { Backdrop } from 'src/components/backdrop';
 
 import RegisterForm from './register/register-form'
+import managementUnitApi from 'src/api/managementUnitApi';
+
+import { over } from 'stompjs';
+import SockJS from 'sockjs-client';
+import SOCKET_URL from 'src/utils/resource';
 
 const columns = [
     { id: 'stt', label: 'STT', minWidth: 100 },
@@ -30,47 +35,11 @@ const columns = [
     { id: 'address', label: 'Địa chỉ', minWidth: 100 },
 ];
 
-function createData(stt, code, name, managementUnit, phone, address) {
-    return { stt, code, name, managementUnit, phone, address };
-}
-
-const rows = [];
-
-const listFirstName = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Huỳnh', 'Phan']
-const listMiddleName = ['Thị', 'Văn', 'Đức', 'Hoa', 'Thế', 'Hồng', 'Thành']
-const listLastName = ['Hoa', 'Đức', 'Hùng', 'Hải', 'Hà', 'Hồng', 'Thành']
-
-const listDepartment = ['Phòng kinh doanh', 'Phòng kế toán', 'Phòng nhân sự', 'Phòng kỹ thuật', 'Phòng hành chính', 'Phòng phát triển', 'Phòng sản xuất']
-
-const randomPhoneNumber = () => {
-    let phone = '0'
-    for (let i = 0; i < 9; i++) {
-        phone += Math.floor(Math.random() * 10)
-    }
-    return phone
-}
-
-// Tạo thêm 30 dữ liệu
-for (let i = 1; i <= 100; i++) {
-    rows.push(
-        createData(
-            i,
-            `NV0000${i}`,
-            `${listFirstName[Math.floor(Math.random() * listFirstName.length)]} ${listMiddleName[Math.floor(Math.random() * listMiddleName.length)]} ${listLastName[Math.floor(Math.random() * listLastName.length)]}`,
-            listDepartment[Math.floor(Math.random() * listDepartment.length)],
-            randomPhoneNumber(),
-            'Hà Nội'
-        )
-    )
-}
-
 export default function StickyHeadTable() {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
     const [loading, setLoading] = React.useState(false);
-
-    const { enqueueSnackbar } = useSnackbar();
 
     const [employees, setEmployees] = React.useState([]);
 
@@ -78,16 +47,59 @@ export default function StickyHeadTable() {
 
     const [openRegisterForm, setOpenRegisterForm] = React.useState(false);
 
+    const [managemaentUnits, setManagementUnits] = React.useState([]);
+
+    const [messageRegister, setMessageRegister] = React.useState('Đang xử lý. Vui lòng đợi giây lát.');
+
+    const stompClient = React.useRef(null);
+
+    React.useEffect(() => {
+        connect();
+    }, [stompClient.current])
+
+    const connect = () => {
+        let Sock = new SockJS(SOCKET_URL + '/ws');
+        stompClient.current = over(Sock);
+        stompClient.current.connect({}, onConnected, onError);
+    }
+
+    const onConnected = () => {
+        stompClient.current.subscribe('/topic/register', onMessageReceived);
+    }
+
+    const onMessageReceived = (payload) => {
+        var payloadData = JSON.parse(payload.body);
+        let isSuccess = payloadData.success ? true : false;
+        if (isSuccess) {
+            setMessageRegister('Đăng ký thành công');
+        } else {
+            setMessageRegister('Đăng ký thất bại');
+        }
+    }
+
+    const onError = (err) => {
+        console.log(err);
+    }
+
     React.useEffect(() => {
         fetchEmployees();
+        fetchManagementUnits();
     }, []);
+
+    const fetchManagementUnits = async () => {
+        try {
+            const response = await managementUnitApi.getAll();
+            setManagementUnits(response.data);
+        } catch (error) {
+            console.log('Failed to fetch management units: ', error);
+        }
+    }
 
     const fetchEmployees = async () => {
         try {
             setLoading(true);
             const response = await userApi.getAllEmployee();
             setEmployees(response.data.map((employee, index) => {
-                console.log(employee.managementUnit)
                 return {
                     ...employee,
                     stt: index + 1,
@@ -129,8 +141,13 @@ export default function StickyHeadTable() {
 
     return (
         <Paper sx={{ width: '100%', overflow: 'auto' }}>
-            <EmployeeForm open={openForm} handleClose={handleCloseForm} />
-            <RegisterForm open={openRegisterForm} handleClose={handleCloseRegisterForm} />
+            {openForm && <EmployeeForm open={openForm} handleClose={handleCloseForm} />}
+            {openRegisterForm && <RegisterForm
+                open={openRegisterForm}
+                handleClose={handleCloseRegisterForm}
+                listUnit={managemaentUnits}
+                message={messageRegister}
+            />}
             <Backdrop open={loading} />
             <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
                 <Typography variant="h4">Danh sách nhân viên</Typography>
@@ -172,7 +189,7 @@ export default function StickyHeadTable() {
                                             );
                                         })}
                                         <TableCell align="right">
-                                            <Button sx={{ marginRight: 2 }} variant="contained" color="inherit" startIcon={<Iconify icon="eva:edit-2-fill" />}>
+                                            <Button onClick={handleOpenForm} sx={{ marginRight: 2 }} variant="contained" color="inherit" startIcon={<Iconify icon="eva:edit-2-fill" />}>
                                                 Sửa
                                             </Button>
                                             {/* <Button onClick={() => deleteEmployee(row.id)} variant="contained" color="error" startIcon={<Iconify icon="eva:trash-fill" />}>

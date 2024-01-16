@@ -197,7 +197,7 @@ public class QueueFaceResultListener {
         json = objectMapper.writeValueAsString(attendanceResult);
         rabbitTemplate.convertAndSend(nameExchangeMachineResult, deviceId, json);
         String channel = "/topic/message/" + user.getId();
-        wsTemplate.convertAndSend(channel, new Notification("Bạn đã chấm công thành công"));
+        wsTemplate.convertAndSend(channel, new Notification("Bạn đã chấm công thành công", true));
     }
     void handleRegister(FaceIdResult faceIdResult, ObjectMapper objectMapper, String userId){
         LOGGER.info(String.format("Register for user id: %s", userId));
@@ -207,7 +207,7 @@ public class QueueFaceResultListener {
             System.out.println(faceIdResult.getLabel() + ": face is unidentified");
             userRepository.findById(userId).ifPresent(user -> userRepository.delete(user));
             wsTemplate.convertAndSend("/topic/register",
-                    new Notification("[FAIL] Đăng ký thất bại! Không nhận diện được khuôn mặt."));
+                    new Notification("Đăng ký thất bại! Không nhận diện được khuôn mặt.", false));
             return;
         }
 //        var user = userRepository.findById(userId).orElse(null);
@@ -219,7 +219,7 @@ public class QueueFaceResultListener {
 
         // Thông báo nhận diện khuôn mặt thành công
         System.out.println(faceIdResult.getLabel() + ": SUCCESS");
-        wsTemplate.convertAndSend("/topic/register", new Notification("[SUCCESS] Đăng ký thành công!"));
+        wsTemplate.convertAndSend("/topic/register", new Notification("Đăng ký thành công!", true));
     }
 }
 
