@@ -62,14 +62,14 @@ rabbitmq:
     direct: "direct-exchange"
     fanout: "fanout-exchange"
     header: "header-exchange"
-logging:
-  level:
-    org:
-      springframework:
-        data:
-          mongodb:
-            core:
-              MongoTemplate: DEBUG
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        data:
+#          mongodb:
+#            core:
+#              MongoTemplate: DEBUG
 
 file:
   upload-dir: /uploads
