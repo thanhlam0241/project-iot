@@ -53,7 +53,7 @@ class AttendanceLogQueueService extends QueueService{
         indexes[i * 4 + 1] = (len >> 8) & 0xFF;
         indexes[i * 4 + 2] = (len >> 16) & 0xFF;
         indexes[i * 4 + 3] = (len >> 24) & 0xFF;
-        realFileIndexes.add(b.length);
+        realFileIndexes.add(image[i].length);
       }
       b.add(indexes);
       for (var i = 0; i < n; i++) {

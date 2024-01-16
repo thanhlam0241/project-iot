@@ -92,6 +92,7 @@ class HomePageStateController {
   bool isCaptureBtnEnabled = false;
   bool isLogViewEnabled = false;
   List<String> logs = [];
+  final ScrollController logsScrollController = ScrollController();
 
   void initState(HomePageState state) async {
     this.state = state;
@@ -150,12 +151,21 @@ class HomePageStateController {
       else if(result.status == "duplicate"){
         message = "[${result.time}] ${result.name} (${result.employeeCode}): Đã chấm công.";
       }
+      else if(result.status == "unidentified"){
+        message = "[${result.time}]: Không thể nhận diện.";
+      }
       else
       {
         message = "[${result.time}]: Chấm công thất bại! (status: ${result.status})";
       };
       logs.add(message);
       state.setState(() {});
+      await Future.delayed(const Duration(milliseconds: 200));
+      logsScrollController.animateTo(
+        logsScrollController.position.maxScrollExtent,
+        duration: const Duration(seconds: 2),
+        curve: Curves.fastOutSlowIn,
+      );
     }).then((value) => {
       isLogViewEnabled = true,
       state.setState(() {})

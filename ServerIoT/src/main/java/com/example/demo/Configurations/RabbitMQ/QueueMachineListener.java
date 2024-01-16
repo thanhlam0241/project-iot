@@ -1,7 +1,10 @@
 package com.example.demo.Configurations.RabbitMQ;
 
+import com.example.demo.Models.Response.AttendanceResult;
+import com.example.demo.Repository.AttendanceMachineRepository;
 import com.example.demo.Utils.BinaryHelper;
 import com.example.demo.Utils.Resource.RedisResource;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
@@ -28,21 +31,52 @@ public class QueueMachineListener {
 
     @Autowired
     private AmqpTemplate rabbitTemplate;
-
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+    @Autowired
+    private AttendanceMachineRepository attendanceMachineRepository;
 
     @Value("${rabbitmq.queue.queue-input-face}")
     private String nameFaceInputQueue;
+
+    @Value("${rabbitmq.queue.exchange-machine-result}")
+    private String nameExchangeMachineResult;
 
     @RabbitListener(queues = {"${rabbitmq.queue.queue-machine-log}"})
     public void consumeJsonMessage(Message message) throws IOException {
         LOGGER.info(String.format("Received from machine id: %s", 1));
         // Receive message from attendance machine
         byte[] body = message.getBody();
+        var now = LocalDateTime.now();
 
         // get id through  bytes first
         var deviceId = BinaryHelper.bytesToHex(body, 0, 12);
+
+        var machine = attendanceMachineRepository.findById(deviceId).orElse(null);
+
+        if(machine == null){
+            System.out.println(deviceId + ": machine is null");
+            ObjectMapper objectMapper = new ObjectMapper();
+            AttendanceResult attendanceResult = new AttendanceResult();
+            attendanceResult.setDeviceId(deviceId);
+            attendanceResult.setTime(now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+            attendanceResult.setStatus("Máy chấm công không tồn tại trong CSDL.");
+            String json = objectMapper.writeValueAsString(attendanceResult);
+            rabbitTemplate.convertAndSend(nameExchangeMachineResult, deviceId, json);
+            return;
+        }
+        else if(machine.getManagementUnit() == null){
+            System.out.println(deviceId + ": managementUnit is null");
+            ObjectMapper objectMapper = new ObjectMapper();
+            AttendanceResult attendanceResult = new AttendanceResult();
+            attendanceResult.setDeviceId(deviceId);
+            attendanceResult.setTime(now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+            attendanceResult.setStatus("Máy chấm công chưa được liên kết.");
+            String json = objectMapper.writeValueAsString(attendanceResult);
+            rabbitTemplate.convertAndSend(nameExchangeMachineResult, deviceId, json);
+            return;
+        }
+
         int dataVideoLength = body.length - 12;
 
         System.out.println("body: " + body.length);
@@ -57,10 +91,9 @@ public class QueueMachineListener {
         BinaryHelper.hexToBytes(uuid, data, 1);
         System.arraycopy(body, 12, data, 29, dataVideoLength);
 
-        var now = LocalDateTime.now();
         var datetime = now.toString();
 
-        String redisContent = deviceId + "," + datetime;
+        String redisContent = "identify," + deviceId + "," + datetime;
 
         // Send message to face detect system, save request to redis
         redisTemplate.opsForValue().set(

@@ -71,15 +71,42 @@ public class QueueFaceResultListener {
             return;
         }
         var redisContentSplit = redisContent.split(",");
-        var deviceId = redisContentSplit[0];
-        var datetime = LocalDateTime.parse(redisContentSplit[1]);
+        var instruction = redisContentSplit[0];
 
-        var user = userRepository.findById(faceIdResult.getLabel()).orElse(null);
+        switch (instruction){
+            case "identify":
+                var deviceId = redisContentSplit[1];
+                var datetime = LocalDateTime.parse(redisContentSplit[2]);
+                handleIdentify(faceIdResult, objectMapper, deviceId, datetime);
+                break;
+        case "register":
+                var userId = redisContentSplit[1];
+                handleRegister(faceIdResult, objectMapper, userId);
+                break;
+        }
+
+
+
+    }
+
+    void handleIdentify(FaceIdResult faceIdResult, ObjectMapper objectMapper, String deviceId, LocalDateTime datetime) throws IOException {
         AttendanceResult attendanceResult = new AttendanceResult();
         attendanceResult.setDeviceId(deviceId);
         attendanceResult.setTime(datetime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
 
         String json = "";
+
+        if(faceIdResult.getLabel() == null || faceIdResult.getLabel().equals("null")
+                || faceIdResult.getLabel().equals("None")
+                || faceIdResult.getLabel().isEmpty() || faceIdResult.getLabel().isBlank()){
+            System.out.println(faceIdResult.getLabel() + ": face is unidentified");
+            attendanceResult.setStatus("unidentified");
+            json = objectMapper.writeValueAsString(attendanceResult);
+            rabbitTemplate.convertAndSend(nameExchangeMachineResult, deviceId, json);
+            return;
+        }
+
+        var user = userRepository.findById(faceIdResult.getLabel()).orElse(null);
         if (user == null) {
             System.out.println(faceIdResult.getLabel() + ": user is null");
             attendanceResult.setStatus("Người chấm công không tồn tại trong CSDL.");
@@ -172,6 +199,9 @@ public class QueueFaceResultListener {
         rabbitTemplate.convertAndSend(nameExchangeMachineResult, deviceId, json);
         String channel = "/topic/message/" + user.getId();
         wsTemplate.convertAndSend(channel, new Notification("Bạn đã chấm công thành công"));
+    }
+    void handleRegister(FaceIdResult faceIdResult, ObjectMapper objectMapper, String userId){
+
     }
 }
 
