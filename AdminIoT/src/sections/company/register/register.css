@@ -1,6 +1,6 @@
 .register-form {
   width: 70%;
-  height: 70%;
+  height: calc(100vh - 200px);
   margin: auto auto;
   background-color: #fff;
   border-radius: 10px;

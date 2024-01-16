@@ -45,6 +45,7 @@ export default function StickyHeadTable() {
 
     const fetchData = async () => {
         try {
+            setData([])
             setLoading(true)
             console.log(date)
             const filter = {
