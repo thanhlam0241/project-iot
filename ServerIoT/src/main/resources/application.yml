@@ -54,21 +54,14 @@ rabbitmq:
   username: ubhptxwu
   password: eh0iTQ0D22adEkSc9kyb2gB8hTZ_yVOt
   queue:
-    queue-machine: "queue.machineLog"
+    queue-machine-log: "queue.machine.out"
+    exchange-machine-result: "queue.machine.in"
     queue-input-face: "queue.model.input"
-    queue-register-face: "queue.model.register"
     queue-output-face: "exchange.model.output"
-    queue-detect: "queue.dataFace"
-    queue-machine-result: "queue.machineLog"
   exchange:
     direct: "direct-exchange"
     fanout: "fanout-exchange"
     header: "header-exchange"
-  routing-key:
-    key-input-face: queue-input-face
-    key-machine: queue-machine
-    key-register-face: queue-register-face
-    key-output-face: queue-output-face
 logging:
   level:
     org:

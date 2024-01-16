@@ -1,6 +1,7 @@
 package com.example.demo.Repository;
 
 import com.example.demo.Entites.AttendanceLog;
+import com.example.demo.Enums.Shift;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -38,5 +39,6 @@ public interface AttendanceLogRepository extends BaseRepository<AttendanceLog,St
     List<AttendanceLog> findAllByYearAndQuarter(int year, int quarter);
     List<AttendanceLog> findAllByYearAndMonthAndDayOfMonth(int year, int month, int dayOfMonth);
 
+    AttendanceLog findByUserIdAndYearAndMonthAndDayOfMonthAndShift(String id, int year, int month, int dayOfMonth, Shift shift);
 
 }
