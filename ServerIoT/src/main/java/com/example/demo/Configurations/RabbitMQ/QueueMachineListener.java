@@ -1,18 +1,26 @@
 package com.example.demo.Configurations.RabbitMQ;
 
+import com.example.demo.Models.Response.AttendanceResult;
+import com.example.demo.Repository.AttendanceMachineRepository;
+import com.example.demo.Utils.BinaryHelper;
 import com.example.demo.Utils.Resource.RedisResource;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.core.Exchange;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -23,40 +31,75 @@ public class QueueMachineListener {
 
     @Autowired
     private AmqpTemplate rabbitTemplate;
-
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+    @Autowired
+    private AttendanceMachineRepository attendanceMachineRepository;
 
-    @Value("${rabbitmq.exchange.direct}")
-    private String exchange;
+    @Value("${rabbitmq.queue.queue-input-face}")
+    private String nameFaceInputQueue;
 
-    @Value("${rabbitmq.routing-key.key-machine}")
-    private String routingKey;
+    @Value("${rabbitmq.queue.exchange-machine-result}")
+    private String nameExchangeMachineResult;
 
-    @RabbitListener(queues = {"${rabbitmq.queue.queue-machine}"})
+    @RabbitListener(queues = {"${rabbitmq.queue.queue-machine-log}"})
     public void consumeJsonMessage(Message message) throws IOException {
         LOGGER.info(String.format("Received from machine id: %s", 1));
         // Receive message from attendance machine
         byte[] body = message.getBody();
+        var now = LocalDateTime.now();
 
         // get id through  bytes first
+        var deviceId = BinaryHelper.bytesToHex(body, 0, 12);
+
+        var machine = attendanceMachineRepository.findById(deviceId).orElse(null);
+
+        if(machine == null){
+            System.out.println(deviceId + ": machine is null");
+            ObjectMapper objectMapper = new ObjectMapper();
+            AttendanceResult attendanceResult = new AttendanceResult();
+            attendanceResult.setDeviceId(deviceId);
+            attendanceResult.setTime(now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+            attendanceResult.setStatus("Máy chấm công không tồn tại trong CSDL.");
+            String json = objectMapper.writeValueAsString(attendanceResult);
+            rabbitTemplate.convertAndSend(nameExchangeMachineResult, deviceId, json);
+            return;
+        }
+        else if(machine.getManagementUnit() == null){
+            System.out.println(deviceId + ": managementUnit is null");
+            ObjectMapper objectMapper = new ObjectMapper();
+            AttendanceResult attendanceResult = new AttendanceResult();
+            attendanceResult.setDeviceId(deviceId);
+            attendanceResult.setTime(now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+            attendanceResult.setStatus("Máy chấm công chưa được liên kết.");
+            String json = objectMapper.writeValueAsString(attendanceResult);
+            rabbitTemplate.convertAndSend(nameExchangeMachineResult, deviceId, json);
+            return;
+        }
+
+        int dataVideoLength = body.length - 12;
+
         System.out.println("body: " + body.length);
-        String idMachine = new String(Arrays.copyOf(body, 24));
-        byte[] dataVideo = Arrays.copyOfRange(body, 24, body.length);
+        System.out.println("idString: " + deviceId);
+        System.out.println("dataVideoLength: " + dataVideoLength);
 
-        System.out.println("idString: " + idMachine);
-
-        String typeData = "R";
         String uuid = UUID.randomUUID().toString().replace("-", "");
-        String label = "0000000000000000";
+        System.out.println("uuid: " + uuid);
 
-        byte[] data = ArrayUtils.addAll(typeData.getBytes(), uuid.getBytes());
-        data = ArrayUtils.addAll(data, label.getBytes());
-        data = ArrayUtils.addAll(data, dataVideo);
+        byte[] data = new byte[1 + 16 + 12 + dataVideoLength];
+        data[0] = 0x00;
+        BinaryHelper.hexToBytes(uuid, data, 1);
+        System.arraycopy(body, 12, data, 29, dataVideoLength);
+
+        var datetime = now.toString();
+
+        String redisContent = "identify," + deviceId + "," + datetime;
 
         // Send message to face detect system, save request to redis
-        redisTemplate.opsForValue().set(RedisResource.STRING_KEY_PREFIX_REQUEST + uuid, "Waiting for result from face detect system");
-        rabbitTemplate.convertAndSend(exchange, routingKey, data);
+        redisTemplate.opsForValue().set(
+                RedisResource.STRING_KEY_PREFIX_DEVICE_TO_FACE + uuid,
+                redisContent);
+        rabbitTemplate.convertAndSend(nameFaceInputQueue, data);
 
 //        String stringMessage = new String(body);
 //        System.out.println(stringMessage);

@@ -57,8 +57,8 @@ class HomePageState extends State<HomePage> {
       drawer: drawerWidget(context),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: controller.navigateToMachineQrScan,
-        tooltip: 'Chấm công',
-        label: const Text('Chấm công'),
+        tooltip: 'Quét QR',
+        label: const Text('Quét QR'),
         icon: const Icon(Icons.qr_code_scanner),
       ),
       body: Center(

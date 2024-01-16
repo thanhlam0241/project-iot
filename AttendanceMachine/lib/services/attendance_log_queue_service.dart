@@ -43,19 +43,17 @@ class AttendanceLogQueueService extends QueueService{
       final n = image.length;
       b.add(Uint8List.fromList([n]));
       var indexes = Uint8List(n * 4);
-      var index = n * 4 + b.length;
 
       // List<int> fileIndexes = [index];
-      // List<int> realFileIndexes = [];
+      List<int> realFileIndexes = [];
 
       for (var i = 0; i < n; i++) {
-        indexes[i * 4] = index & 0xFF;
-        indexes[i * 4 + 1] = (index >> 8) & 0xFF;
-        indexes[i * 4 + 2] = (index >> 16) & 0xFF;
-        indexes[i * 4 + 3] = (index >> 24) & 0xFF;
-
-        index += image[i].length;
-        // fileIndexes.add(index);
+        int len = image[i].length;
+        indexes[i * 4] = len & 0xFF;
+        indexes[i * 4 + 1] = (len >> 8) & 0xFF;
+        indexes[i * 4 + 2] = (len >> 16) & 0xFF;
+        indexes[i * 4 + 3] = (len >> 24) & 0xFF;
+        realFileIndexes.add(image[i].length);
       }
       b.add(indexes);
       for (var i = 0; i < n; i++) {
@@ -65,7 +63,7 @@ class AttendanceLogQueueService extends QueueService{
       var msg = b.toBytes();
       queue?.publish(msg);
       // print(fileIndexes);
-      // print(realFileIndexes);
+      print(realFileIndexes);
   }
 
   // void publish(Uint8List video) {

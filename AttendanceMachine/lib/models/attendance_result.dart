@@ -1,7 +1,7 @@
 class AttendanceResult {
   final String deviceId;
-  final String name;
-  final String employeeCode;
+  final String? name;
+  final String? employeeCode;
   final String time;
   final String status;
 

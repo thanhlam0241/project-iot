@@ -109,6 +109,7 @@ class HomePageState extends State<HomePage>
               color: Colors.black,
               height: 200,
               child: ListView.builder(
+                controller: controller.logsScrollController,
                 itemCount: controller.logs.length,
                 itemBuilder: (BuildContext context, int index) {
                   return ListTile(

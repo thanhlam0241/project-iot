@@ -97,7 +97,7 @@ public class UserService {
         return filterData;
     }
 
-    public Boolean InsertUser(UserCreateDto userDto) {
+    public User InsertUser(UserCreateDto userDto) {
         var user = modelMapper.map(userDto, User.class);
         if(userDto.getManagementUnitId() != null){
             var managementUnit = managementUnitRepository.findById(userDto.getManagementUnitId())
@@ -106,7 +106,7 @@ public class UserService {
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        return true;
+        return user;
     }
 
     public Boolean UpdateProfile(String id, ChangeProfileRequest profile) {
