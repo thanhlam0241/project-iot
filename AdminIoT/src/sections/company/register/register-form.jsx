@@ -5,19 +5,11 @@ import PropsType from 'prop-types';
 import './register.css';
 
 import {
-    Paper,
     Grid,
-    Stack,
-    Checkbox,
     Button,
     Backdrop,
     TextField,
-    IconButton,
     Typography,
-    FormControl,
-    InputLabel,
-    Input,
-    InputAdornment,
     Stepper,
     Step,
     StepLabel,
@@ -32,26 +24,26 @@ const steps = ['Điền thông tin cá nhân', 'Đăng ký nhận dạng khuôn 
 import SelectVariants from 'src/components/select/select-varient';
 import Capture from './webcam';
 
-export default function Form({ open, handleClose }) {
+import adminApi from 'src/api/adminApi';
+
+export default function Form({ open, handleClose, listUnit }) {
     const [activeStep, setActiveStep] = useState(0)
     const [skipped, setSkipped] = useState(new Set())
 
     const [imgBlobs, setImgBlobs] = useState([])
     const [disableFinishBtn, setDisableFinishBtn] = useState(false)
 
-    const [code, setCode] = useState('')
-    const [fullName, setFullName] = useState('')
-    const [identityCard, setIdentityCard] = useState('')
-    const [phone, setPhone] = useState('')
-    const [address, setAddress] = useState('')
-    const [email, setEmail] = useState('')
+    const [code, setCode] = useState('120322432')
+    const [fullName, setFullName] = useState('Hello World')
+    const [identityCard, setIdentityCard] = useState('123')
+    const [phone, setPhone] = useState('12344')
+    const [address, setAddress] = useState('1234')
+    const [email, setEmail] = useState('1234')
     const [genger, setGenger] = useState('')
     const [department, setDepartment] = useState('')
 
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
-    const [imgSrc, setImgSrc] = useState('')
-    const [face, setFace] = useState('')
+    const [username, setUsername] = useState('user10000')
+    const [password, setPassword] = useState('123456')
 
     const changeState = {
         changeCode: (e) => {
@@ -86,8 +78,6 @@ export default function Form({ open, handleClose }) {
         },
     }
 
-
-
     const isStepOptional = (step) => {
         return false
     }
@@ -99,18 +89,25 @@ export default function Form({ open, handleClose }) {
     const handleFinish = async () => {
         var formdata = new FormData();
         for (let i = 0; i < imgBlobs.length; i++) {
-            formdata.append("faces", imgBlobs[i], `${i + 1}.jfif`);
+            formdata.append("images", imgBlobs[i], `${i + 1}.jfif`);
         }
-        formdata.append("username", username);
-        formdata.append("password", password);
-        formdata.append("code", code);
-        formdata.append("fullName", fullName);
-        formdata.append("identityCard", identityCard);
-        formdata.append("phone", phone);
-        formdata.append("address", address);
-        formdata.append("email", email);
-        formdata.append("genger", genger === 1 ? 'Nam' : 'Nữ');
-        formdata.append("department", department);
+
+        const data = {
+            username: username,
+            password: password,
+            code: code,
+            fullName: fullName,
+            identityCard: identityCard,
+            phone: phone,
+            address: address,
+            email: email,
+            gender: genger === 1 ? 'MALE' : 'FEMALE',
+            role: 'EMPLOYEE',
+            active: true,
+            managementUnitId: department,
+        }
+
+        formdata.append("model", JSON.stringify(data));
 
         var requestOptions = {
             method: 'POST',
@@ -119,20 +116,7 @@ export default function Form({ open, handleClose }) {
 
         console.log(formdata)
 
-        // let result = await fetch(AccountRegisterUrl, requestOptions);
-        // if (!result.ok) {
-        //     let res = await result.json();
-        //     alert(res.msgs);
-        //     if (res.stepError === "face") {
-        //         setActiveStep(1);
-        //     }
-        //     else {
-        //         setActiveStep(0);
-        //     }
-        // }
-        // else {
-        //     navigate('/authenticate/login');
-        // }
+        await adminApi.registerFace(requestOptions);
     }
 
     const handleNext = () => {
@@ -152,10 +136,8 @@ export default function Form({ open, handleClose }) {
             console.log(data)
         }
         else if (activeStep === 2) {
-            // setDisableFinishBtn(true);
-            // handleFinish().then(() => { setDisableFinishBtn(false); });
-
-            // return;
+            setDisableFinishBtn(true);
+            handleFinish().then(() => { setDisableFinishBtn(false); });
         }
         let newSkipped = skipped
         if (isStepSkipped(activeStep)) {
@@ -187,6 +169,17 @@ export default function Form({ open, handleClose }) {
     }
 
     const handleReset = () => {
+        setUsername('')
+        setPassword('')
+        setCode('')
+        setFullName('')
+        setIdentityCard('')
+        setPhone('')
+        setAddress('')
+        setEmail('')
+        setGenger('')
+        setDepartment('')
+        setImgBlobs([])
         setActiveStep(0)
     }
 
@@ -226,8 +219,7 @@ export default function Form({ open, handleClose }) {
                 </Stepper>
                 {activeStep === steps.length ? (
                     <>
-                        <Typography sx={{ mt: 1, mb: 1 }}>All steps completed - you&apos;re finished</Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, color: '#000' }}>
                             <Box sx={{ flex: '1 1 auto' }} />
                             {/* <Button onClick={handleReset}>Reset</Button> */}
                             <p>Đang xử lý ...</p>
@@ -245,7 +237,7 @@ export default function Form({ open, handleClose }) {
                                     Skip
                                 </Button>
                             )}
-                            <Button onClick={handleNext}>{activeStep === steps.length - 1 ? 'Hoàn tất' : 'Tiếp'}</Button>
+                            <Button disabled={disableFinishBtn} onClick={handleNext}>{activeStep === steps.length - 1 ? 'Hoàn tất' : 'Tiếp'}</Button>
                         </Box>
                         {activeStep === 0 && (
                             <Box key='step-one' sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -335,11 +327,9 @@ export default function Form({ open, handleClose }) {
                                     </Grid>
                                     <Grid item xs={12} sm={6}>
                                         <SelectVariants
-                                            options={[
-                                                { id: 1, value: 1, name: 'Phòng nhân sự' },
-                                                { id: 2, value: 2, name: 'Phòng kế toán' },
-                                                { id: 3, value: 3, name: 'Phòng phát triển' },
-                                            ]}
+                                            options={listUnit.map(
+                                                (item) => ({ id: item.id, value: item.id, name: item.name })
+                                            )}
                                             label="Đơn vị/Phòng ban"
                                             fullWidth
                                             variant="standard"
@@ -392,6 +382,14 @@ export default function Form({ open, handleClose }) {
                         )}
                     </>
                 )}
+                <div className='header-register-form'>
+                    <Button color="error" variant='contained' onClick={handleReset}>
+                        Reset
+                    </Button>
+                    <Button color="error" variant='outlined' onClick={handleClose}>
+                        Đóng
+                    </Button>
+                </div>
             </div>
         </Backdrop>
     );
