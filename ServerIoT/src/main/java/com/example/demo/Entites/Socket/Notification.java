@@ -9,4 +9,5 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 public class Notification {
     private String msg;
+    private boolean success;
 }

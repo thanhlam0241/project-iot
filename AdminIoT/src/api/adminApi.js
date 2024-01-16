@@ -14,7 +14,11 @@ class Api {
         return axios.get(`${url}/statistic/attendance?year=${year}`)
     }
     async registerFace(data) {
-        return axios.post(`${url}/registerFace`, data)
+        return axios.post(`${url}/registerFace`, data, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
     }
 }
 

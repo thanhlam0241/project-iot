@@ -26,7 +26,7 @@ import Capture from './webcam';
 
 import adminApi from 'src/api/adminApi';
 
-export default function Form({ open, handleClose, listUnit }) {
+export default function Form({ open, handleClose, listUnit, message }) {
     const [activeStep, setActiveStep] = useState(0)
     const [skipped, setSkipped] = useState(new Set())
 
@@ -109,14 +109,9 @@ export default function Form({ open, handleClose, listUnit }) {
 
         formdata.append("model", JSON.stringify(data));
 
-        var requestOptions = {
-            method: 'POST',
-            body: formdata
-        };
-
         console.log(formdata)
 
-        await adminApi.registerFace(requestOptions);
+        await adminApi.registerFace(formdata);
     }
 
     const handleNext = () => {
@@ -222,7 +217,7 @@ export default function Form({ open, handleClose, listUnit }) {
                         <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, color: '#000' }}>
                             <Box sx={{ flex: '1 1 auto' }} />
                             {/* <Button onClick={handleReset}>Reset</Button> */}
-                            <p>Đang xử lý ...</p>
+                            <p>{message}</p>
                         </Box>
                     </>
                 ) : (

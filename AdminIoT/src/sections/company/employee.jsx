@@ -22,7 +22,9 @@ import { Backdrop } from 'src/components/backdrop';
 import RegisterForm from './register/register-form'
 import managementUnitApi from 'src/api/managementUnitApi';
 
-import useSocket from 'src/hooks/use-socket';
+import { over } from 'stompjs';
+import SockJS from 'sockjs-client';
+import SOCKET_URL from 'src/utils/resource';
 
 const columns = [
     { id: 'stt', label: 'STT', minWidth: 100 },
@@ -39,8 +41,6 @@ export default function StickyHeadTable() {
 
     const [loading, setLoading] = React.useState(false);
 
-    const { enqueueSnackbar } = useSnackbar();
-
     const [employees, setEmployees] = React.useState([]);
 
     const [openForm, setOpenForm] = React.useState(false);
@@ -49,33 +49,42 @@ export default function StickyHeadTable() {
 
     const [managemaentUnits, setManagementUnits] = React.useState([]);
 
-    const { stompClient, connect } = useSocket('/topic/register')
+    const [messageRegister, setMessageRegister] = React.useState('Đang xử lý. Vui lòng đợi giây lát.');
+
+    const stompClient = React.useRef(null);
+
+    React.useEffect(() => {
+        connect();
+    }, [stompClient.current])
+
+    const connect = () => {
+        let Sock = new SockJS(SOCKET_URL + '/ws');
+        stompClient.current = over(Sock);
+        stompClient.current.connect({}, onConnected, onError);
+    }
+
+    const onConnected = () => {
+        stompClient.current.subscribe('/topic/register', onMessageReceived);
+    }
+
+    const onMessageReceived = (payload) => {
+        var payloadData = JSON.parse(payload.body);
+        let isSuccess = payloadData.success ? true : false;
+        if (isSuccess) {
+            setMessageRegister('Đăng ký thành công');
+        } else {
+            setMessageRegister('Đăng ký thất bại');
+        }
+    }
+
+    const onError = (err) => {
+        console.log(err);
+    }
 
     React.useEffect(() => {
         fetchEmployees();
         fetchManagementUnits();
     }, []);
-
-    React.useEffect(() => {
-        const onMessageReceived = (payload) => {
-            console.log('hello wworld');
-            console.log(payload)
-            if (openRegisterForm) setOpenRegisterForm(false)
-            enqueueSnackbar('Đăng ký thành công', { variant: 'success' });
-        }
-        const onConnect = () => {
-            console.log('connected')
-            if (stompClient)
-                stompClient.subscribe('/topic/register', onMessageReceived);
-        }
-
-        const onError = (err) => {
-            console.log(err)
-        }
-
-        connect(onConnect, onError);
-
-    }, [stompClient, connect])
 
     const fetchManagementUnits = async () => {
         try {
@@ -133,7 +142,12 @@ export default function StickyHeadTable() {
     return (
         <Paper sx={{ width: '100%', overflow: 'auto' }}>
             {openForm && <EmployeeForm open={openForm} handleClose={handleCloseForm} />}
-            {openRegisterForm && <RegisterForm open={openRegisterForm} handleClose={handleCloseRegisterForm} listUnit={managemaentUnits} />}
+            {openRegisterForm && <RegisterForm
+                open={openRegisterForm}
+                handleClose={handleCloseRegisterForm}
+                listUnit={managemaentUnits}
+                message={messageRegister}
+            />}
             <Backdrop open={loading} />
             <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
                 <Typography variant="h4">Danh sách nhân viên</Typography>
