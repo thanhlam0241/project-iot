@@ -21,22 +21,22 @@ const useAuthProvider = () => {
     });
     const navigate = useNavigate()
     useEffect(() => {
-        const user = {
-            username: 'buitrongduc',
-            fullname: 'Bui Trong Duc',
-            identityCard: '033449232434',
-            phone: '0334492324',
-            role: 'ADMIN',
-            avatar: avatar.ADMIN,
-            email: 'buitrongduc@gmail.com',
-            address: 'Ha Noi'
-        }
-        setAuth(user)
+        // const user = {
+        //     username: 'buitrongduc',
+        //     fullname: 'Bui Trong Duc',
+        //     identityCard: '033449232434',
+        //     phone: '0334492324',
+        //     role: 'ADMIN',
+        //     avatar: avatar.ADMIN,
+        //     email: 'buitrongduc@gmail.com',
+        //     address: 'Ha Noi'
+        // }
+        // setAuth(user)
     }, [])
     useEffect(() => {
-        // if (!auth.username) {
-        //     navigate('/login')
-        // }
+        if (!auth.username) {
+            navigate('/login')
+        }
     }, [auth, navigate])
     const login = async (username, password) => {
         const response = await authApi.login(username, password)
@@ -46,7 +46,12 @@ const useAuthProvider = () => {
         }
     }
     const logout = async () => {
-        setAuth(null)
+        setAuth({
+            username: '',
+            fullname: '',
+            role: 'ADMIN',
+            avatar: avatar.ADMIN
+        })
     }
     return {
         login,
