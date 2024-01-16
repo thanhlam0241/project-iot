@@ -36,7 +36,7 @@ public class WebSocketController {
     ) String id, @RequestBody MessageSocket message) {
         userService.getUserById(id);
         String channel = "/topic/message/" + id;
-        template.convertAndSend(channel, new Notification("Bạn đã chấm công thành công"));
+        template.convertAndSend(channel, new Notification("Bạn đã chấm công thành công", true));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
