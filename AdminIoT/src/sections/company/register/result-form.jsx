@@ -1,22 +1,7 @@
 /* eslint-disable */
 import { useEffect, useState } from 'react';
 import {
-    Paper,
     Grid,
-    Stack,
-    Checkbox,
-    Button,
-    Backdrop,
-    TextField,
-    IconButton,
-    Typography,
-    FormControl,
-    InputLabel,
-    Input,
-    InputAdornment,
-    Stepper,
-    Step,
-    StepLabel,
     Box
 } from '@mui/material';
 
@@ -24,11 +9,14 @@ function ResultForm({
     code, fullName, managementUnit, phone, address, gender, email, identityCard, image, username, password
 }) {
     const [imgSrc, setImgSrc] = useState(null);
+
     useEffect(() => {
-        let blobUrl = URL.createObjectURL(image);
-        setImgSrc(blobUrl);
-        return () => {
-            URL.revokeObjectURL(blobUrl);
+        if (image) {
+            let blobUrl = URL.createObjectURL(image);
+            setImgSrc(blobUrl);
+            return () => {
+                URL.revokeObjectURL(blobUrl);
+            }
         }
     }, [image])
 
@@ -77,7 +65,7 @@ function ResultForm({
                     <b>Ảnh nhận diện: </b>
                 </Grid>
                 <Grid item xs={12} sm={8}>
-                    <img src={imgSrc} alt="Ảnh chân dung" style={{ width: '200px', height: '200px', marginTop: '20px' }} />
+                    <img src={imgSrc} alt="Ảnh chân dung" style={{ height: '150px' }} />
                 </Grid>
             </Grid>
 
