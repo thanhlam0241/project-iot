@@ -5,7 +5,7 @@ const url = '/user'
 
 class Api {
     getAll() {
-        return axios.get(url)
+        return axios.get(url + '/all')
     }
     getAllEmployee() {
         return axios.get(`${url}/employee`)

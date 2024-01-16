@@ -5,6 +5,7 @@ import 'package:mobilemanager/models/attendance-machine.dart';
 import 'package:mobilemanager/pages/machine-detail/machine-detail.dart';
 import 'package:mobilemanager/services/attendance-machine-service.dart';
 import 'package:mobilemanager/services/authentication-service.dart';
+import 'package:mobilemanager/services/user-service.dart';
 
 import '../routes.dart';
 
@@ -97,6 +98,13 @@ class MachineDetailController {
     final result = await AttendanceMachineService.instance.updateMachine(machine!);
     if(result.status == Status.SUCCESS){
       isLinkingWithUnit = true;
+      final machineResult = await AttendanceMachineService.instance.getMachine(machine!.id);
+      if(machineResult.status == Status.SUCCESS){
+        machine = machineResult.data;
+      }
+      else{
+        state.showInSnackBar(machineResult.message);
+      }
     }
     else{
       machine!.managementUnitId = null;
@@ -135,6 +143,13 @@ class MachineDetailController {
     final result = await AttendanceMachineService.instance.updateMachine(machine!);
     if(result.status == Status.SUCCESS){
       isLinkingWithUnit = false;
+      final machineResult = await AttendanceMachineService.instance.getMachine(machine!.id);
+      if(machineResult.status == Status.SUCCESS){
+        machine = machineResult.data;
+      }
+      else{
+        state.showInSnackBar(machineResult.message);
+      }
     }
     else{
       machine!.managementUnitId = loginInfo.managementUnitId;
