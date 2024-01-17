@@ -10,7 +10,7 @@ public class BinaryHelper {
     }
     public static String bytesToHex(byte[] bytes, int from, int to) {
         StringBuilder result = new StringBuilder();
-        for (int i = from; i < to; i++) {
+        for (int i = from; i < to && i < bytes.length; i++) {
             result.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
         }
         return result.toString();

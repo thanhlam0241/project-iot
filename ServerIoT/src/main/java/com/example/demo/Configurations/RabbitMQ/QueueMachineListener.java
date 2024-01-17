@@ -47,6 +47,12 @@ public class QueueMachineListener {
         LOGGER.info(String.format("Received from machine id: %s", 1));
         // Receive message from attendance machine
         byte[] body = message.getBody();
+
+        if(body.length < 14){
+            LOGGER.error("INCORRECT QUEUE MESSAGE (queue.machine.out): body length = " + body.length);
+            return;
+        }
+
         var now = LocalDateTime.now();
 
         // get id through  bytes first

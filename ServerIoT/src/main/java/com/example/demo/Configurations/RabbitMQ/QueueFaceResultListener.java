@@ -49,7 +49,7 @@ public class QueueFaceResultListener {
     @Autowired
     private AttendanceManagerService attendanceManagerService;
     @Autowired
-    private final SimpMessagingTemplate wsTemplate;
+    private SimpMessagingTemplate wsTemplate;
 
     @Value("${rabbitmq.queue.exchange-machine-result}")
     private String nameExchangeMachineResult;
@@ -127,6 +127,7 @@ public class QueueFaceResultListener {
         var userManagementUnit = user.getManagementUnit();
 
         if(machineManagermentUnit == null || !machineManagermentUnit.getId().equals(userManagementUnit.getId())){
+            System.out.println(("employee: " + user.getId() + ", name: " + user.getFullName() + ", code: " + user.getCode() + " is not in management unit of machine: " + machine.getId()));
             System.out.println("machineManagermentUnit: " + machineManagermentUnit);
             System.out.println("userManagementUnit: " + userManagementUnit);
             attendanceResult.setStatus("Nhân viên không thuộc đơn vị quản lý của máy chấm công.");
@@ -195,8 +196,10 @@ public class QueueFaceResultListener {
         attendanceLogRepository.save(attendanceLog);
 
         json = objectMapper.writeValueAsString(attendanceResult);
+        LOGGER.info("attendane result: " + json);
         rabbitTemplate.convertAndSend(nameExchangeMachineResult, deviceId, json);
         String channel = "/topic/message/" + user.getId();
+        LOGGER.info("attendane result to ws channel: " + channel);
         wsTemplate.convertAndSend(channel, new Notification("Bạn đã chấm công thành công", true));
     }
     void handleRegister(FaceIdResult faceIdResult, ObjectMapper objectMapper, String userId){
