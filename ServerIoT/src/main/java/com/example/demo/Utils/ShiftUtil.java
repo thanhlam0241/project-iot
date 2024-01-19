@@ -5,11 +5,10 @@ import com.example.demo.Enums.StatusLog;
 
 public class ShiftUtil {
     public static Shift getShift(int hour) {
-        if(hour >= 7 && hour <= 8)
+        if(hour <= 12)
             return Shift.MORNING;
-        else if(hour >= 13 && hour <= 14)
+        else
             return Shift.AFTERNOON;
-        else return Shift.NONE;
     }
 
     public static StatusLog getStatusLog(int hour, int minute) {
@@ -17,10 +16,12 @@ public class ShiftUtil {
             return StatusLog.ON_TIME;
         }
         else if (hour == 8 || hour == 14) {
-            return StatusLog.LATE;
+            return StatusLog.ON_TIME;
+//            return StatusLog.LATE;
         }
         else {
-            return StatusLog.ABNORMAL;
+            return StatusLog.ON_TIME;
+//            return StatusLog.ABNORMAL;
         }
     }
 }

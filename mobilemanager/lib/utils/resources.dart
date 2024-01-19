@@ -1,4 +1,4 @@
-const BASE_URL = "https://297a-14-248-84-166.ngrok-free.app";
+const BASE_URL = "https://iot-v1-ehbc6vitva-as.a.run.app";
 const MACHINE_URL = "$BASE_URL/api/v1/attendance-machine";
 const USER_URL = "$BASE_URL/api/v1/user";
 const AUTH_URL = "$BASE_URL/api/v1/auth";
