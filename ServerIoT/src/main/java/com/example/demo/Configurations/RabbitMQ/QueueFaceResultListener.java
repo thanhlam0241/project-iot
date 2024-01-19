@@ -150,6 +150,8 @@ public class QueueFaceResultListener {
 
         if(attendanceLogInDb != null){
             System.out.println("attendanceLogInDb: " + attendanceLogInDb);
+            attendanceResult.setName(user.getFullName());
+            attendanceResult.setEmployeeCode(user.getCode());
             attendanceResult.setStatus("duplicate");
             json = objectMapper.writeValueAsString(attendanceResult);
             rabbitTemplate.convertAndSend(nameExchangeMachineResult, deviceId, json);
